@@ -1,6 +1,8 @@
 #!/bin/bash
 
-filename="/tmp/flex$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1).yy.c"
+mkdir -p "/tmp/flex"
+
+filename="/tmp/flex/$(random_string 32 'a-zA-Z0-9').yy.c"
 
 if flex -o "$filename" "$1"
 then
