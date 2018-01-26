@@ -1,6 +1,0 @@
-#!/bin/bash
-if [ "$#" -gt 0 ];then
-    less -R "$@"
-else
-    less -R -f /dev/stdin
-fi
