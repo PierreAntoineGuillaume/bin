@@ -4,6 +4,13 @@ mkdir -p "/tmp/flex"
 
 filename="/tmp/flex/$(random_string 32 'a-zA-Z0-9').yy.c"
 
+cleanup ()
+{
+    rm -f "$filename"
+}
+
+trap cleanup EXIT
+
 if flex -o "$filename" "$1"
 then
     if ! gcc "$filename" -lfl
