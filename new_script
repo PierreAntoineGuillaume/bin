@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ $# -eq 0  ];then
+    echo $0 : Missing new script name   
+    exit 127
+fi
+
+DEFAULT_FOLDER="$HOME/workspace/bin"
+
+
+SCRIPT_NAME="$DEFAULT_FOLDER/$1"
+
+if [ -f "$SCRIPT_NAME" ]; then
+    editor "$SCRIPT_NAME";
+else
+    echo "#!/bin/bash" >> "$SCRIPT_NAME"
+    chmod +x "$SCRIPT_NAME"
+    editor "$SCRIPT_NAME"
+fi

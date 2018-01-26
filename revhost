@@ -1,0 +1,11 @@
+#!/bin/bash
+for i in $HOME/workspace/vhosts/effective/*.conf ; do 
+        ln -sf "$i" "/etc/apache2/sites-available/$(basename $i)";
+        servername=$(grep 'ServerName' "$i" | awk '{print $NF}')
+        if ! grep -q "$servername"  '/etc/hosts';
+        then
+            printf "::1\t${servername}\n" >> /etc/hosts
+        fi
+        a2ensite "$(basename $i)" > /dev/null 2>&1
+done
+systemctl reload apache2.service

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+
+
+SOFT=$(basename $0)
+
+mkdir -p "/tmp/$SOFT/"
+
+cleanup ()
+{
+    :
+}
+
+exit_error ()
+{
+    echo "$SOFT : Error $@"
+    exit 127
+}
+
+
+trap cleanup EXIT;
+
+
+if [ "$#" -lt 1 ]; then
+    echo "$SOFT : Missing arguments"
+    exit 1
+fi
+
+
+while (( "$#" )); do
+    case $1 in
+        open)
+            shift
+            while (( "$#" )); do
+                xdg-open "http://espace-client.siweb.fr/espace-client/support-technique/ticket/$1" &> /dev/null &
+                shift
+            done
+            ;;
+        edit)
+            vim "$0"
+            ;;
+
+        *)
+            exit_error "Option inconnue $1"
+            ;;
+
+    esac
+
+    shift
+
+done

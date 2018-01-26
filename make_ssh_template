@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SOFT="$(basename $0)"
+
+if [ ! "$#" -eq 1 ];then
+    echo "usage : $SOFT nom_host"
+    exit 123
+fi
+
+HOST_NAME="$1"
+
+cat <<EOF
+Host $HOST_NAME
+    User it-siweb
+    HostName ${HOST_NAME}.siweb.fr
+EOF

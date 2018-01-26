@@ -1,0 +1,47 @@
+#!/bin/bash
+
+SOFT_NAME=$(basename $0);
+
+if [ $# -eq 2 ]; then
+    SECOND="$1"
+    FIRST="$2"
+else
+    echo "$SOFT_NAME : missing arguments"
+    echo "usage : $SOFT_NAME \${source} \${target}"
+    exit 127
+fi
+
+mkdir -p "/tmp/$SOFT_NAME"
+
+temp_filename="/tmp/$SOFT_NAME/$(random_string 20).diff"
+
+> "$temp_filename"
+
+
+rm_temp_file () {
+    rm $temp_filename
+}
+
+trap rm_temp_file EXIT
+
+echo "$SOFT_NAME : temp file is $temp_filename"
+
+for file in $(find "$SECOND" -type f -not -path '*/CVS/*' -path '*/.git/*' -path '*/.idea/*');
+do
+    cfile="${file##$SECOND/}"
+
+    if ! [ -f "$FIRST/$cfile"  ];then
+
+        if diff -u "$FIRST/$cfile" "$SECOND/$cfile" > "$temp_filename";then
+            echo "pepsi::$cfile and danone::$cfile are identical"
+        else
+            cat $temp_filename | colordiff | less -R
+            echo "Press key to continue, y to patch $cfile"
+            read -p ""  -n 1 letter
+            if [ "$letter" = "y" ]; then
+                echo "\nPatching $SECOND/$cfile ..."
+                patch -i $temp_filename "$FIRST/$cfile"; 
+            fi
+        fi
+    fi
+done

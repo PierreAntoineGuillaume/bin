@@ -1,0 +1,48 @@
+#!/bin/bash
+
+SOFT="$(basename $0)"
+
+if [ ! "$#" -gt 0 ];then
+    echo "usage : $SOFT site_name"
+    exit 123;
+fi
+
+core="${1%%\.conf}"
+document="/home/pierreantoine/workspace/$core"
+
+if [ "$#" -eq 2  -a "$2" = "php7" ];then
+    findv="$(find /var/run/php -name 'php7*.sock')"
+    fpm=$(cat<<EOF 
+<FilesMatch \\.php$>
+        SetHandler "proxy:unix:$findv|fcgi://$core/"
+    </FilesMatch>
+    <Proxy fcgi://$core>
+        ProxySet connectiontimeout=5 timeout=240
+    </Proxy>
+    RewriteCond %{REQUEST_FILENAME} \.php$
+    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} ! -f
+    RewriteRule (.*) - [H=text/html]
+EOF
+)
+    option='php7'
+else
+    fpm=''
+    option=''
+fi
+
+echo "#making site $core with options : ${option[@]}"
+
+
+
+cat <<EOF
+<VirtualHost *:80>
+    DocumentRoot "$document"
+    ServerName ${core}.dev
+    $fpm
+    <Directory "$document">
+        AllowOverride All
+        Options Indexes FollowSymLinks
+        Require all granted
+    </Directory>
+</VirtualHost>
+EOF

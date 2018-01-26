@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -gt 0 ]; then
+    len="$1"
+else
+    len=32
+fi
+
+if [ "$#" -gt 1  ];then
+    trim="$2"
+else
+    trim='a-zA-Z0-9'
+fi
+
+cat /dev/urandom | tr -dc "$trim" | fold -w $len | head -n 1
