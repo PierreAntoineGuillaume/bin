@@ -33,7 +33,7 @@ do
     if ! [ -f "$FIRST/$cfile"  ];then
 
         if diff -u "$FIRST/$cfile" "$SECOND/$cfile" > "$temp_filename";then
-            echo "pepsi::$cfile and danone::$cfile are identical"
+            echo "$1::$cfile and $2::$cfile are identical"
         else
             cat $temp_filename | colordiff | less -R
             echo "Press key to continue, y to patch $cfile"
