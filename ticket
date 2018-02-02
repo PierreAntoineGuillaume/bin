@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -euo pipefail
 
 
 SOFT=$(basename $0)
@@ -11,6 +12,8 @@ cleanup ()
     :
 }
 
+trap cleanup EXIT;
+
 exit_error ()
 {
     echo "$SOFT : Error $@"
@@ -18,12 +21,14 @@ exit_error ()
 }
 
 
-trap cleanup EXIT;
+sql ()
+{
+    mysql --user="$TICKET_SQL_USER" --password="$TICKET_SQL_PASSWORD" -h "srv19.siweb.fr"  --database "siweb" "$@" < /dev/stdin
+}
 
 
 if [ "$#" -lt 1 ]; then
-    echo "$SOFT : Missing arguments"
-    exit 1
+    exit_error "Missing Arguments"
 fi
 
 
@@ -31,6 +36,13 @@ while (( "$#" )); do
     case $1 in
         open)
             shift
+            if ! (( "$#" ));then
+                exit_error "Missing arguments after open"
+            fi
+            if [ "$1" == "opened"  ];then
+                $SOFT open $($SOFT list opened) # no "" because IFS read one per lines as different arguments
+                break;
+            fi
             while (( "$#" )); do
                 xdg-open "http://espace-client.siweb.fr/espace-client/support-technique/ticket/$1" &> /dev/null &
                 shift
@@ -38,6 +50,27 @@ while (( "$#" )); do
             ;;
         edit)
             vim "$0"
+            ;;
+        list)
+            shift 
+            if (( "$#" ));then
+                if [ -z ${TICKET_USNUM+x} ]; then
+                    echo "$SOFT : variable TICKET_SQL_USER not set"
+                    exit
+                fi
+                case "$1" in
+                    all)
+                    echo "SELECT tanum FROM projets_taches WHERE TaEtat<4 AND (TaEtat=1 OR TaUser=$TICKET_USNUM)" | sql  --skip-column-names;
+                    ;;
+
+                opened)
+                    echo "SELECT tanum FROM projets_taches WHERE tauser=$TICKET_USNUM AND taetat=2"  | sql --skip-column-names
+
+                esac
+            fi
+            ;;
+        vocabulary)
+
             ;;
 
         *)

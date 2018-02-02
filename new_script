@@ -13,7 +13,25 @@ SCRIPT_NAME="$DEFAULT_FOLDER/$1"
 if [ -f "$SCRIPT_NAME" ]; then
     editor "$SCRIPT_NAME";
 else
-    echo "#!/bin/bash" >> "$SCRIPT_NAME"
+    echo '#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+cleanup (){
+    :
+}
+
+trap cleanup EXIT
+
+main (){
+    :
+}
+
+main
+
+    ' > "$SCRIPT_NAME"
     chmod +x "$SCRIPT_NAME"
     editor "$SCRIPT_NAME"
 fi
