@@ -1,15 +1,3 @@
 #!/bin/bash
-
-SOFT=$(basename $0)
-
-if [ -z ${SQL_USER+x} ]; then
-    echo "$SOFT : variable TICKET_SQL_USER not set"
-    exit 1
-fi
-if [ -z ${SQL_PASSWORD+x} ]; then
-    echo "$SOFT : variable TICKET_SQL_USER not set"
-    exit 2
-fi
-
-
+set -euo pipefail
 mysql --user="$SQL_USER" --password="$SQL_PASSWORD" "$@" < /dev/stdin
