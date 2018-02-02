@@ -24,7 +24,7 @@ rm_temp_file () {
 
 trap rm_temp_file EXIT
 
-echo "$SOFT_NAME : temp file is $temp_filename"
+set -euo pipefail
 
 for file in $(find "$SECOND" -type f -not -path '*/CVS/*' -path '*/.git/*' -path '*/.idea/*');
 do

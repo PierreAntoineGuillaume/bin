@@ -2,6 +2,8 @@
 
 SOFT="$(basename $0)"
 
+set -euo pipefail
+
 if [ ! "$#" -gt 0 ];then
     echo "usage : $SOFT site_name"
     exit 123;

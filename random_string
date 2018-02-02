@@ -1,6 +1,8 @@
 #!/bin/bash
 
-if [ $# -gt 0 ]; then
+set -euo pipefail
+
+if [ "$#" -gt 0 ]; then
     len="$1"
 else
     len=32
@@ -12,4 +14,4 @@ else
     trim='a-zA-Z0-9'
 fi
 
-cat /dev/urandom | tr -dc "$trim" | fold -w $len | head -n 1
+cat /dev/urandom | tr -dc "$trim" | fold -w "$len" | head -n 1

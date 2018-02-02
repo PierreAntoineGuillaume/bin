@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 for i in $HOME/workspace/vhosts/effective/*.conf ; do 
         ln -sf "$i" "/etc/apache2/sites-available/$(basename $i)";
         servername=$(grep 'ServerName' "$i" | awk '{print $NF}')

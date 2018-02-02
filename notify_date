@@ -1,2 +1,3 @@
 #!/bin/bash
+set -euo pipefail
 date | $HOME/workspace/bin/pipe_notification

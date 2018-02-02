@@ -2,6 +2,8 @@
 
 SOFT="$(basename $0)"
 
+set -euo pipefail
+
 if [ ! "$#" -eq 1 ];then
     echo "usage : $SOFT nom_host"
     exit 123
