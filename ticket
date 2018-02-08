@@ -23,8 +23,20 @@ exit_error ()
 
 sql ()
 {
-    mysql --user="$TICKET_SQL_USER" --password="$TICKET_SQL_PASSWORD" -h "srv19.siweb.fr"  --database "siweb" "$@" < /dev/stdin
+    mysql --user="$TICKET_SQL_USER" --password="$TICKET_SQL_PASSWORD" -h "srv19.siweb.fr"  --database "siweb" --skip-column-names "$@" < /dev/stdin
 }
+
+
+basic_ticket ()
+{
+    :
+}
+
+
+TICKET_GENERAL_USER=133;
+
+base_sql="SELECT tanum FROM projets_taches WHERE (tauser=$TICKET_USNUM OR taparticipants like '%$TICKET_USNUM%') ";
+new_tickets="SELECT IF(tauser=$TICKET_USNUM,'[x]','[ ]'), tanum, ClDesignation1, tanom  FROM projets_taches JOIN clients ON TaClient = ClNum WHERE taetat=1 AND (TaUser IN ($TICKET_GENERAL_USER,$TICKET_USNUM))"
 
 
 if [ "$#" -lt 1 ]; then
@@ -36,21 +48,31 @@ while (( "$#" )); do
     case $1 in
         open)
             shift
-            if ! (( "$#" ));then
-                exit_error "Missing arguments after open"
-            fi
-            if [ "$1" == "opened"  ];then
-                $SOFT open $($SOFT list opened) # no "" because IFS read one per lines as different arguments
-                break;
-            fi
             while (( "$#" )); do
-                xdg-open "http://espace-client.siweb.fr/espace-client/support-technique/ticket/$1" &> /dev/null &
+                case "$1" in
+                    "opened")
+                    $SOFT open $($SOFT list opened) # no "" because IFS read one per lines as different arguments
+                    ;;
+                    "client")
+                    shift
+                    $SOFT open $($SOFT list $1)
+                        ;;
+                    *)
+                        re='^[0-9]+$'
+                        if ! [[ "$1" =~ $re  ]]; then
+                            exit_error "Not a number : $1"
+                        fi
+                    navigator "http://espace-client.siweb.fr/espace-client/support-technique/ticket/$1"
+                    ;;
+                esac
                 shift
             done
             ;;
+
         edit)
             vim "$0"
             ;;
+
         list)
             shift 
             if (( "$#" ));then
@@ -60,17 +82,28 @@ while (( "$#" )); do
                 fi
                 case "$1" in
                     all)
-                    echo "SELECT tanum FROM projets_taches WHERE TaEtat<4 AND (TaEtat=1 OR TaUser=$TICKET_USNUM)" | sql  --skip-column-names;
+                    echo "$base_sql AND TaEtat<4 " | sql;
                     ;;
 
                 opened)
-                    echo "SELECT tanum FROM projets_taches WHERE tauser=$TICKET_USNUM AND taetat=2"  | sql --skip-column-names
-
+                    echo "$base_sql AND taetat=2"  | sql 
+                ;;
+                new)
+                    echo "$new_tickets ORDER BY ClDesignation1" | sql
+                ;;
+                senlis)
+                    echo "$base_sql and taetat<3 and taclient=3251" | sql 
+                    ;;
+                pepsi)
+                    echo "$base_sql and taetat<3 and taclient=373" | sql 
                 esac
             fi
             ;;
         vocabulary)
 
+            ;;
+        messages)
+                
             ;;
 
         *)

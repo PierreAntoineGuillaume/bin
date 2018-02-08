@@ -29,7 +29,7 @@ main (){
     :
 }
 
-main
+main $@
 
     ' > "$SCRIPT_NAME"
     chmod +x "$SCRIPT_NAME"
