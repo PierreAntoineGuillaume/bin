@@ -23,6 +23,7 @@ SWGS[senlis]='http://srv24.siweb.fr/lmds'
 SWGS[danone]='http://admin-danone.siwipo.fr'
 SWGS[pepsi]='http://admin.siwipo.fr'
 SWGS[demov2]='http://admin-demo.siwipo.fr'
+SWGS[ticket]='http://espace-client.siweb.fr/espace-client/support-technique/tickets-en-cours'
 
 
 
