@@ -36,7 +36,7 @@ basic_ticket ()
 TICKET_GENERAL_USER=133;
 
 base_sql="SELECT tanum FROM projets_taches WHERE (tauser=$TICKET_USNUM OR taparticipants like '%$TICKET_USNUM%') ";
-new_tickets="SELECT IF(tauser=$TICKET_USNUM,'[x]','[ ]'), tanum, ClDesignation1, tanom  FROM projets_taches JOIN clients ON TaClient = ClNum WHERE taetat=1 AND (TaUser IN ($TICKET_GENERAL_USER,$TICKET_USNUM))"
+new_tickets="SELECT IF(tauser=$TICKET_USNUM,'[×]','[ ]'), tanum, ClDesignation1, tanom  FROM projets_taches JOIN clients ON TaClient = ClNum WHERE taetat=1 AND (TaUser IN ($TICKET_GENERAL_USER,$TICKET_USNUM))"
 
 
 if [ "$#" -lt 1 ]; then
