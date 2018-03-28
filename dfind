@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+TEMP_FILE="/tmp/$SOFT/temp_file"
+
+mkdir -p "/tmp/$SOFT"
+
+cleanup (){
+    if [ -f "$TEMP_FILE"  ]; then
+        rm "$TEMP_FILE"
+    fi
+}
+
+DIRECTORY="."
+
+> "$TEMP_FILE"
+
+trap cleanup EXIT
+
+if [ "$#" -lt 2  ];then
+    echo "Usage : $SOFT \"recherche\" \"remplacement\""
+    exit 1
+fi
+
+find "$DIRECTORY" -name "*.php" -not \( -path ./.git -prune -o -path ./.idea -prune  \) -exec make_replacement "$1" "$2" {} "$TEMP_FILE" ';'
+

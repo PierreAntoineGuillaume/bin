@@ -16,14 +16,12 @@ cleanup (){
 trap cleanup EXIT
 
 
-declare -A SWGS;
+declare -A siwipo;
 
                         
-SWGS[senlis]='http://srv24.siweb.fr/lmds'
-SWGS[danone]='https://admin-danone.siwipo.fr'
-SWGS[pepsi]='https://admin.siwipo.fr'
-SWGS[demov2]='https://admin-demo.siwipo.fr'
-SWGS[ticket]='http://espace-client.siweb.fr/espace-client/support-technique/tickets-en-cours'
+siwipo[danone]='danone.siwipo.fr'
+siwipo[pepsi]='pepsi.siwipo.fr'
+siwipo[demov2]='demo.siwipo.fr'
 
 
 
@@ -32,11 +30,11 @@ main (){
     do
         case "$1" in
             list)
-                for K in "${!SWGS[@]}"; do echo "$K"; done
+                for K in "${!siwipo[@]}"; do echo "$K"; done
                 ;;
             convert)
-                if [ "${SWGS[$2]+abc}"  ];then
-                    echo "${SWGS[$2]}"
+                if [ "${siwipo[$2]+abc}"  ];then
+                    echo "${siwipo[$2]}"
                 else
                     err "unknown key $2"
                 fi
@@ -45,8 +43,7 @@ main (){
             open)
                 while (( "$#" -1 ))
                 do
-                    echo "$(main convert $2)"
-                    navigator "$(main convert $2)";
+                    navigator "$($SOFT convert $2)";
                     shift
                 done
             ;;

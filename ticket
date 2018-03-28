@@ -33,6 +33,15 @@ basic_ticket ()
 }
 
 
+print_new_ticket ()
+{
+    while read -r line
+    do
+        echo "$line" | awk -F $'\t' '{printf "%s %s     %-30s %s\n", $1, $2, $3, $4 }'
+    done < <(cat /dev/stdin)
+}
+
+
 TICKET_GENERAL_USER=133;
 
 base_sql="SELECT tanum FROM projets_taches WHERE (tauser=$TICKET_USNUM OR taparticipants like '%$TICKET_USNUM%') ";
@@ -89,13 +98,13 @@ while (( "$#" )); do
                     echo "$base_sql AND taetat=2"  | sql 
                 ;;
                 new)
-                    echo "$new_tickets ORDER BY ClDesignation1" | sql
+                    echo "$new_tickets ORDER BY ClDesignation1" | sql | print_new_ticket
                 ;;
                 senlis)
-                    echo "$base_sql and taetat<3 and taclient=3251" | sql 
+                    echo "$base_sql and taetat<3 and taclient=3251" | sql
                     ;;
                 pepsi)
-                    echo "$base_sql and taetat<3 and taclient=373" | sql 
+                    echo "$base_sql and taetat<3 and taclient=373" | sql
                 esac
             fi
             ;;

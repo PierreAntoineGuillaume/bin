@@ -1,0 +1,19 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+cleanup (){
+    :
+}
+
+trap cleanup EXIT
+
+main (){
+    :
+}
+
+main $@
+
+    

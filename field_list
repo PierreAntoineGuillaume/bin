@@ -1,0 +1,39 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+cleanup (){
+    :
+}
+
+query_sql () {
+    #content="$(cat /dev/stdin)"
+    #echo "$content"
+    mysql -h $3 --user="$1" --password="$2"  --database "$4" --skip-column-names -A < /dev/stdin
+}
+
+delim () {
+    while read -r line
+    do
+        echo "$line" | awk -F $'\t' '{printf "%30-s :  %s\n", $1, $2}'
+    done < <(cat /dev/stdin)
+}
+
+trap cleanup EXIT
+
+main (){
+    if [ "$#" -lt 3 ]; then
+        echo "Usage : $SOFT host database table";
+        exit 5
+    fi
+
+    echo "SELECT COLUMN_NAME, COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_NAME = '$3' AND database() = TABLE_SCHEMA ORDER BY COLUMN_NAME" \
+        | query_sql "$TICKET_SQL_USER" "$TICKET_SQL_PASSWORD" "$1" "$2" |  delim
+}
+
+main $@
+
+    
+    

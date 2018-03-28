@@ -1,0 +1,9 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+if [ "$#" -lt 1  ]; then echo "$SOFT missing parameter"; exit; fi
+
+sed -E -i "s/(\\\\?[a-zA-Z_]+)?\\\\//g" "$1"

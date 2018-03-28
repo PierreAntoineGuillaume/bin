@@ -9,4 +9,4 @@ else
     protocol='https://'
 fi
 
-xdg-open "$protocol$@" &> /dev/null &
+xdg-open "${protocol}${@}" &> /dev/null &

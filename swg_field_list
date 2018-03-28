@@ -1,0 +1,56 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+cleanup (){
+    :
+}
+
+query_sql () {
+    mysql --user="$1" --password="$2" -h "$3" --database "$4" --skip-column-names < /dev/stdin
+}
+
+delim () {
+    while read -r line
+    do
+        echo "$line" | awk -F $'\t' '{printf "%s %-15s : %-20s\n", $1, $2, $3}'
+    done < <(cat /dev/stdin)
+}
+
+trap cleanup EXIT
+
+main (){
+    if [ "$#" -lt 3 ]; then
+        echo "Usage : $SOFT host database champ";
+        exit 5
+    fi
+
+
+    echo "SELECT cle, champ, intitule
+            FROM (
+            SELECT
+                substring(prcle, locate('_', PrCle) + 1) AS cle
+                , PrChamp                                  AS champ
+                , PrIntitule                               AS intitule
+                FROM sys_preferences2
+            UNION
+            SELECT
+                focle      AS cle
+                , FoChamp    AS champ
+                , FoIntitule AS intitule
+                FROM sys_formulaires
+            UNION
+            SELECT
+                substring(Crcle, locate('_', CrCle) + 1) AS cle
+                , CrChamp                                  AS champ
+                , CrIntitule                               AS intitule
+                FROM sys_criteres
+     ) c WHERE cle LIKE '$3' ORDER BY champ" | query_sql "$TICKET_SQL_USER" "$TICKET_SQL_PASSWORD" "$1" "$2" |  delim
+}
+
+main $@
+
+    
+    

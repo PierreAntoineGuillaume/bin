@@ -1,0 +1,20 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+if [ "$#" -lt 1  ]; then echo "$SOFT missing parameter"; exit; fi
+
+
+prefix='./'
+fullname="$1"
+filename="$(basename $1)"
+pathname="${fullname%/$filename}"
+namespace_1="${pathname#$prefix}"
+namespace_2="${namespace_1/\//\\\\}"
+if grep -qE 'namespace.+;' "$1";then
+   sed -E -i 's/namespace.+;//g' "$1"
+fi
+
+sed -i "2i namespace $namespace_2;" "$1"

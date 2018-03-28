@@ -1,0 +1,10 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+eval "hack() {  $@ ; }"
+
+while read -r line
+do
+    hack "$line"
+done < <(cat /dev/stdin)
