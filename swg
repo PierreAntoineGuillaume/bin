@@ -24,6 +24,7 @@ SWGS[danone]='https://admin-danone.siwipo.fr'
 SWGS[pepsi]='https://admin.siwipo.fr'
 SWGS[demov2]='https://admin-demo.siwipo.fr'
 SWGS[ticket]='http://espace-client.siweb.fr/espace-client/support-technique/tickets-en-cours'
+SWGS[square]='https://admin-square.siwipo.fr'
 
 
 

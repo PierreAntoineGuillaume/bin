@@ -1,4 +1,2 @@
 #!/bin/bash
-set -euo pipefail
-export DISPLAY=:0
 /usr/bin/notify-send "$(cat /dev/stdin)"

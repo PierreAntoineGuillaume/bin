@@ -1,0 +1,14 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+cleanup (){
+    :
+}
+
+trap cleanup EXIT
+
+notify-send 'Running Youtube-dl'
+youtube-dl https://www.youtube.com/playlist?list=LL3b7lad998mpuATjQNBDx5g

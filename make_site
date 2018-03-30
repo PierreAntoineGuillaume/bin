@@ -43,7 +43,7 @@ echo "#making site $core with options : ${option[@]}"
 cat <<EOF
 <VirtualHost *:80>
     DocumentRoot "$document"
-    ServerName ${core}.dev
+    ServerName ${core}.localhost
     $fpm
     <Directory "$document">
         AllowOverride All
@@ -53,13 +53,13 @@ cat <<EOF
 </VirtualHost>
 <VirtualHost *:443>
     DocumentRoot "$document"
-    ServerName ${core}.dev
+    ServerName ${core}.localhost
     $fpm
     SSLEngine On
     SSLOptions +FakeBasicAuth +ExportCertData +StrictRequire
 
-    SSLCertificateFile "/var/www/cert/server.crt"
-    SSLCertificateKeyFile "/var/www/cert/server.key"
+    SSLCertificateFile "/var/www/cert/localhost.crt"
+    SSLCertificateKeyFile "/var/www/cert/localhost.key"
     <Directory "$document">
         AllowOverride All
         Options Indexes FollowSymLinks
