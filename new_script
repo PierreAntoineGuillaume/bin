@@ -23,7 +23,7 @@ cleanup (){
     :
 }
 
-trap cleanup EXIT
+#trap cleanup EXIT
 
 main (){
     :

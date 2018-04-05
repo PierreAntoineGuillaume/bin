@@ -1,3 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-/usr/bin/tail -f -n 0 /var/log/apache2/error.log | grep --line-buffered ':error'

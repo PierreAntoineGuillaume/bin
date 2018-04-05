@@ -1,0 +1,2 @@
+#!/bin/bash
+while read HTTPD_DEBUG_LOG; do echo "$HTTPD_DEBUG_LOG" | cut -d']' -f 5- | pipe_notification; done < <(httpd_grep_error)

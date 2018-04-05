@@ -25,5 +25,5 @@ if [ "$#" -lt 2  ];then
     exit 1
 fi
 
-find "$DIRECTORY" -name "*.php" -not \( -path ./.git -prune -o -path ./.idea -prune  \) -exec make_replacement "$1" "$2" {} "$TEMP_FILE" ';'
+find "$DIRECTORY" -name "*.php" -not \( -path ./.git -prune -o -path ./.idea -prune  \) -exec refactor_infile "$1" "$2" {} "$TEMP_FILE" ';'
 

@@ -28,7 +28,7 @@ EOF
 )
     option='php7'
 elif [ "$#" -gt 2  ] && [ "$2" == 'indirection'  ];then
-    document="$HOME/workspace/$3"
+    document="$WORKSPACE/$3"
     option='indirect'
     fpm='';
 else
