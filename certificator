@@ -4,15 +4,24 @@ set -euo pipefail
 
 SOFT="$(basename $0)"
 
-cleanup (){
-    :
-}
+if [ "$#" -lt 1  ];then
+    echo "$SOFT usage : $SOFT hostname.dev [ hostname2.com ...]";
+    exit 1;
+fi
 
-trap cleanup EXIT
+arguments=$@
 
-openssl req -x509 -out localhost.crt -keyout localhost.key \
+# make domains name list "DNS:name1.dev,DNS:name2.dev"
+domain_string="";
+for i in "$arguments"; do domain_string="${domain_string}DNS:$i,";done
+domain_string=${domain_string::-1};
+echo "$SOFT : making certificates for domains : $arguments";
+
+certificate_name=localhost
+
+openssl req -x509 -out ${certificate_name}.crt -keyout ${certificate_name}.key \
   -newkey rsa:2048 -nodes -sha256 \
   -subj '/CN=localhost' -extensions EXT -config <( \
-   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-openssl pkcs12 -export -in localhost.crt -inkey localhost.key -out localhost.p12
-chmod +r localhost.p12
+   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=${domain_string}\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+openssl pkcs12 -export -in ${certificate_name}.crt -inkey ${certificate_name}.key -out ${certificate_name}.p12
+chmod +r ${certificate_name}.p12
