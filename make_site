@@ -10,7 +10,7 @@ if [ ! "$#" -gt 0 ];then
 fi
 
 core="${1%%\.conf}"
-document="$HOME/workspace/$core"
+document="$WORKSPACE/$core"
 
 if [ "$#" -eq 2 ] && [  "$2" == "php7" ];then
     findv="$(find /var/run/php -name 'php7*.sock')"

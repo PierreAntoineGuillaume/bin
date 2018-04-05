@@ -1,16 +1,15 @@
 #!/bin/bash
 set -euo pipefail
-APACHE_NAME="httpd"
-for i in /home/pierreantoine/workspace/vhosts/*.conf ; do 
+for i in "$WORKSPACE/$HTTPD_NAME/*.conf" ; do 
 	echo "$i"
-        ln -sf "$i" "/etc/$APACHE_NAME/conf.d/$(basename $i)";
+        ln -sf "$i" "/etc/$HTTPD_NAME/conf.d/$(basename $i)";
         servername=$(grep 'ServerName' "$i" | awk '{print $NF}')
         if ! grep -q "$servername"  '/etc/hosts';
         then
             printf "::1\t${servername}\n" >> /etc/hosts
         fi
-	if [ "$APACHE_NAME" != 'httpd'  ]; then
+	if [ "$HTTPD_NAME" != 'httpd'  ]; then
         	a2ensite "$(basename $i)"
 	fi
 done
-systemctl reload $APACHE_NAME.service
+systemctl reload $HTTPD_NAME.service
