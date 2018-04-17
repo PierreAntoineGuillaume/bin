@@ -1,0 +1,36 @@
+#!/bin/bash
+
+SOFT=$(basename $0)
+
+if [ -z ${CVS_REMOTE_PASSWORD+x}  ];then
+    echo "$SOFT : Undefined variable \$CVS_REMOTE_PASSWORD"
+    exit 1;
+fi
+
+if [ "$#" -lt 1  ]; then
+    echo "$SOFT usage : $SOFT cvs_modname"
+    exit 1;
+fi
+
+module="$1"
+prompt="prompt>"
+mkdir -p "/tmp/$SOFT"
+filename="/tmp/$SOFT/$module"
+echo "#!/usr/bin/expect" > $filename
+cleanup (){
+    rm $filename
+}
+trap cleanup EXIT
+cat <<EOD >> $filename
+spawn ssh srv11
+send "PS1='$prompt'\n";
+expect "$prompt"
+send "cvs_$module.sh\n"
+expect "Password:" {send "$CVS_REMOTE_PASSWORD\n"}
+expect "$prompt"
+send "logout\n"
+EOD
+chmod +x $filename
+echo "Starting update of $module"
+$filename
+printf "\nEnd of update\n"

@@ -1,0 +1,11 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+program=$1;
+
+x="$(which $1)"
+
+editor $x

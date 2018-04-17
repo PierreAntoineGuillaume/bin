@@ -1,0 +1,16 @@
+#!/bin/bash
+    
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+file=$1;
+if [ "$#" -gt 1 ];then
+    lines=$2;
+    lines=$(( 1 + $lines ));
+else
+    lines=2;
+fi
+
+tail -n +$lines "$file" > "$file.tmp"
+mv "$file.tmp" $file
