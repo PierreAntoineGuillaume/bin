@@ -17,6 +17,18 @@ if [ "$#" -lt 2  ]; then
     exit 1;
 fi
 
+version="prod";
+
+while getopts ":t:" option
+do
+    case "$option" in
+        t)
+            shift
+            version="$1";
+            shift
+            ;;
+    esac
+done
 
 remote_dir="$1"
 module="$2"
@@ -26,13 +38,30 @@ mkdir -p "/tmp/$SOFT"
 filename="/tmp/$SOFT/$module"
 
 function write_password() {
-    expect "Password:" {send "$CVS_REMOTE_PASSWORD\n"} >> $filename
+    echo "expect \"Password:\" {send \"$CVS_REMOTE_PASSWORD\n\"}" >> $filename
 }
 
 echo "#!/usr/bin/expect" > $filename
 cleanup (){
-    rm $filename
+    :
+    #rm $filename
 }
+
+
+cvs_update_f () {
+    fake='';
+    while getopts ":n:" option
+    do
+        case "$option" in
+            n)
+                fake='-n'
+                shift
+                ;;
+        esac
+    done
+    echo "send \"cvs update -d -q -P${fake} ${@} \n\"" >> $filename
+}
+
 trap cleanup EXIT
 cat <<EOD >> $filename
 spawn ssh srv11
@@ -40,10 +69,16 @@ send "PS1='$prompt'\n";
 send "CVSROOT='$CVS_REMOTE_CVSROOT'\n";
 expect "$prompt"
 send "cd $remote_dir\n"
-send "cvs update -d -q -n $module\n"
 EOD
 
 write_password;
+
+
+if [ "$is_test_version" = "test" ]; then
+    cvs_update_f $module
+else
+    cvs_update_f -n $module
+fi
 
 cat <<EOD >> $filename
 expect "$prompt"
@@ -55,6 +90,7 @@ chmod +x $filename
 
 echo "Starting update of $module"
 
-$filename
+#$filename
+cat $filename
 
 printf "\nEnd of update\n"
