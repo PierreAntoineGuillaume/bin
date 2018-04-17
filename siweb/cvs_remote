@@ -3,19 +3,32 @@
 SOFT=$(basename $0)
 
 if [ -z ${CVS_REMOTE_PASSWORD+x}  ];then
-    echo "$SOFT : Undefined variable \$CVS_REMOTE_PASSWORD"
+    echo "$SOFT : Undefined variable CVS_REMOTE_PASSWORD"
     exit 1;
 fi
 
-if [ "$#" -lt 1  ]; then
-    echo "$SOFT usage : $SOFT cvs_modname"
+if [ -z ${CVS_REMOTE_CVSROOT+x}  ];then
+    echo "$SOFT : Undefined variable CVS_REMOTE_CVSROOT"
     exit 1;
 fi
 
-module="$1"
+if [ "$#" -lt 2  ]; then
+    echo "$SOFT usage : $SOFT cvs_module_path cvs_module_name"
+    exit 1;
+fi
+
+
+remote_dir="$1"
+module="$2"
 prompt="prompt>"
+
 mkdir -p "/tmp/$SOFT"
 filename="/tmp/$SOFT/$module"
+
+function write_password() {
+    expect "Password:" {send "$CVS_REMOTE_PASSWORD\n"} >> $filename
+}
+
 echo "#!/usr/bin/expect" > $filename
 cleanup (){
     rm $filename
@@ -24,13 +37,24 @@ trap cleanup EXIT
 cat <<EOD >> $filename
 spawn ssh srv11
 send "PS1='$prompt'\n";
+send "CVSROOT='$CVS_REMOTE_CVSROOT'\n";
 expect "$prompt"
-send "cvs_$module.sh\n"
-expect "Password:" {send "$CVS_REMOTE_PASSWORD\n"}
+send "cd $remote_dir\n"
+send "cvs update -d -q -n $module\n"
+EOD
+
+write_password;
+
+cat <<EOD >> $filename
 expect "$prompt"
 send "logout\n"
+expect eof
 EOD
+
 chmod +x $filename
+
 echo "Starting update of $module"
+
 $filename
+
 printf "\nEnd of update\n"
