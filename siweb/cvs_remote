@@ -12,54 +12,69 @@ if [ -z ${CVS_REMOTE_CVSROOT+x}  ];then
     exit 1;
 fi
 
-if [ "$#" -lt 2  ]; then
-    echo "$SOFT usage : $SOFT cvs_module_path cvs_module_name"
-    exit 1;
-fi
 
-version="prod";
+version_test=false;
+pepsi_style=""
+debug=false
 
-while getopts ":t:" option
+arguments=$@
+
+while getopts ":t:p:d:" option
 do
     case "$option" in
         t)
+            version_test=true;
             shift
-            version="$1";
+            shift
+            ;;
+        p)
+            pepsi_style=true
+            shift
+            shift
+            ;;
+        d)
+            debug=true
+            shift
             shift
             ;;
     esac
 done
 
+if [ "$#" -lt 2  ]; then
+    echo "$SOFT usage : $SOFT [ -d  ] [ -p  ]  [ -t ] cvs_module_path cvs_module_name"
+    exit 1;
+fi
+
 remote_dir="$1"
 module="$2"
 prompt="prompt>"
+ctrl=" "
 
 mkdir -p "/tmp/$SOFT"
 filename="/tmp/$SOFT/$module"
 
 function write_password() {
-    echo "expect \"Password:\" {send \"$CVS_REMOTE_PASSWORD\n\"}" >> $filename
+    echo "expect \"Password:\" {send \"${ctrl}$CVS_REMOTE_PASSWORD\n\"}" >> $filename
 }
 
 echo "#!/usr/bin/expect" > $filename
 cleanup (){
-    :
-    #rm $filename
+    rm $filename
 }
 
 
 cvs_update_f () {
-    fake='';
+    preoption='-q ';
     while getopts ":n:" option
     do
         case "$option" in
             n)
-                fake='-n'
                 shift
+                preoption="$preoption -n"
                 ;;
         esac
     done
-    echo "send \"cvs update -d -q -P${fake} ${@} \n\"" >> $filename
+    echo "send \"${ctrl}cvs ${preoption} update -P -d ${@} \n\"" >> $filename
 }
 
 trap cleanup EXIT
@@ -71,14 +86,17 @@ expect "$prompt"
 send "cd $remote_dir\n"
 EOD
 
-write_password;
-
-
-if [ "$is_test_version" = "test" ]; then
-    cvs_update_f $module
+if [ "$version_test" = true ]; then
+    if [ "$pepsi_style" = true ]; then
+        echo "send \"${ctrl}cvs_$1_test.sh\n\"";
+    else
+        cvs_update_f $module
+    fi
 else
     cvs_update_f -n $module
 fi
+
+write_password;
 
 cat <<EOD >> $filename
 expect "$prompt"
@@ -88,9 +106,12 @@ EOD
 
 chmod +x $filename
 
-echo "Starting update of $module"
 
-#$filename
-cat $filename
+if [ "$debug" = true  ]; then
+    cat $filename
+else
+    echo "Starting update of $module"
+    $filename
+    printf "\nEnd of update\n"
+fi
 
-printf "\nEnd of update\n"
