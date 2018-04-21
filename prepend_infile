@@ -11,12 +11,6 @@ mkdir -p "/tmp/$SOFT"
 
 temp_filename=/tmp/$SOFT/$(basename $file)
 
-rm_temp_file () {
-    rm -rf $temp_filename
-}
-
-trap rm_temp_file EXIT
-
 echo $content > $temp_filename;
 cat $file >> $temp_filename
 mv $temp_filename $file
