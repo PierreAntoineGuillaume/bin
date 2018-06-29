@@ -66,6 +66,9 @@ while (( "$#" )); do
                     shift
                     $SOFT open $($SOFT list $1)
                         ;;
+                    "base")
+                        navigator "http://espace-client.siweb.fr/espace-client/support-technique/tickets-en-cours"
+                        ;;
                     *)
                         re='^[0-9]+$'
                         if ! [[ "$1" =~ $re  ]]; then
