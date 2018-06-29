@@ -54,7 +54,7 @@ mkdir -p "/tmp/$SOFT"
 filename="/tmp/$SOFT/$module"
 
 function write_password() {
-    echo "expect \"Password:\" {send \"${ctrl}$CVS_REMOTE_PASSWORD\n\"}" >> $filename
+    echo "expect \"Password:\" {send \"$CVS_REMOTE_PASSWORD\n\"}" >> $filename
 }
 
 echo "#!/usr/bin/expect" > $filename
@@ -80,10 +80,10 @@ cvs_update_f () {
 trap cleanup EXIT
 cat <<EOD >> $filename
 spawn ssh srv11
-send "PS1='$prompt'\n";
-send "CVSROOT='$CVS_REMOTE_CVSROOT'\n";
+send " PS1='$prompt'\n";
+send " CVSROOT='$CVS_REMOTE_CVSROOT'\n";
 expect "$prompt"
-send "cd $remote_dir\n"
+send " cd $remote_dir\n"
 EOD
 
 if [ "$version_test" = true ]; then
@@ -100,7 +100,7 @@ write_password;
 
 cat <<EOD >> $filename
 expect "$prompt"
-send "logout\n"
+send " logout\n"
 expect eof
 EOD
 
