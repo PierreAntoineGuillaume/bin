@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-for i in "$WORKSPACE/$HTTPD_NAME/*.conf" ; do 
-	echo "$i"
+for i in $WORKSPACE/$HTTPD_NAME/*.conf
+do
         ln -sf "$i" "/etc/$HTTPD_NAME/conf.d/$(basename $i)";
         servername=$(grep 'ServerName' "$i" | awk '{print $NF}')
         if ! grep -q "$servername"  '/etc/hosts';
