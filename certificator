@@ -17,7 +17,7 @@ for i in "$arguments"; do domain_string="${domain_string}DNS:$i,";done
 domain_string=${domain_string::-1};
 echo "$SOFT : making certificates for domains : $arguments";
 
-certificate_name=localhost
+certificate_name="$i"
 
 openssl req -x509 -out ${certificate_name}.crt -keyout ${certificate_name}.key \
   -newkey rsa:2048 -nodes -sha256 \
