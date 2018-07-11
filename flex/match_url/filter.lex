@@ -12,7 +12,7 @@ SUBDOMAIN       [a-zA-Z0-9-]+"."
 DOMAIN          {SUBDOMAIN}+
 SUBPATH         \/[^ \t\n]+
 PATH            {SUBPATH}*
-URL             {PROTOCOL}:\/\/{DOMAIN}{EXT}{PATH}
+URL             ({PROTOCOL}:\/\/)?{DOMAIN}{EXT}{PATH}
 WS              [ \t\n]
 
 
