@@ -10,13 +10,11 @@ mkdir -p "$tempfolder"
 pushd "$tempfolder" > /dev/null
 cleanup (){
     popd > /dev/null
-    rm ${tempfolder}
+    rm -rf -- "${tempfolder}"
 }
 
-#trap cleanup EXIT
+trap cleanup EXIT
 site="$1"
 
 wget --spider --recursive --no-verbose --output-file=wgetlot.txt "$site"
-sed -n "s@.\+ URL:\([^ ]\+\) .\+@\1@p" wgetlog.txt | sed "s@&@\&amp;@" > sedlog.txt
-
-cat sedlog.txt
+cat wgetlot.txt | sed 's/:$//'  | url_matcher
