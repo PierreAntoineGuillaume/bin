@@ -9,6 +9,7 @@ tempfolder="/tmp/$SOFT/$random"
 mkdir -p "$tempfolder"
 pushd "$tempfolder" > /dev/null
 cleanup (){
+    cat wgetlot.txt | tail -n +2  | sed 's/:$//'  | url_matcher
     popd > /dev/null
     rm -rf -- ${tempfolder}
 }
@@ -16,5 +17,4 @@ cleanup (){
 trap cleanup EXIT
 site="$1"
 
-wget --spider --recursive --no-verbose --output-file=wgetlot.txt "$site"
-cat wgetlot.txt | tail -n +2  | sed 's/:$//'  | url_matcher
+wget -nd --spider --recursive --no-verbose --output-file=wgetlot.txt "$site"
