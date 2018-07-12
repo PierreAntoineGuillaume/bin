@@ -1,20 +1,5 @@
 #!/bin/bash
-    
 set -euo pipefail
 
-SOFT="$(basename $0)"
-random=$(( ( RANDOM % 100000 ) ))
-tempfolder="/tmp/$SOFT/$random"
-
-mkdir -p "$tempfolder"
-pushd "$tempfolder" > /dev/null
-cleanup (){
-    cat wgetlot.txt | tail -n +2  | sed 's/:$//'  | url_matcher
-    popd > /dev/null
-    rm -rf -- ${tempfolder}
-}
-
-trap cleanup EXIT
-site="$1"
-
-wget -nd --spider --recursive --no-verbose --output-file=wgetlot.txt "$site"
+wget -nd --spider --recursive --no-verbose --output-file=/dev/stdout "$1" \
+| sed -e 's/:$//' | url_matcher
