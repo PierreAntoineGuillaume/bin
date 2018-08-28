@@ -1,1 +1,25 @@
 #!/bin/bash
+
+set -euo pipefail
+
+SOFT="$(basename $0)"
+
+usage(){
+    echo "$SOFT : ip_to_match < list of hostnames"
+}
+
+resolveHostname(){
+    dig +short "$1"
+}
+
+
+IP="$1";
+
+while read -r hostname
+do
+    realIp="$(resolveHostname $hostname | tr -d '\n')"
+    if [[ "$realIp"  != "$IP" ]]
+    then
+        printf "%-60s %s\n" "$hostname" "$realIp"
+    fi
+done
