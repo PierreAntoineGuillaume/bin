@@ -7,5 +7,4 @@ RemoveComas="s/,//g"
 ReplaceSpacesWithNewLines="s/ +/\s/g"
 
 grep --line-buffered -Ei "$GrepAndFilter" /dev/stdin \
-    | sed -E "$RemoveBadMatch; $RemoveTrailingWhitespaces; $RemoveComas; $ReplaceSpacesWithNewLines" \
-    | rev | sort -u | rev
+    | sed -E "$RemoveBadMatch; $RemoveTrailingWhitespaces; $RemoveComas; $ReplaceSpacesWithNewLines"
