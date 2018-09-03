@@ -1,7 +1,11 @@
 #!/bin/bash
 
 GrepAndFilter="ServerName|ServerAlias"
+RemoveBadMatch="s/^\s*($GrepAndFilter)\s+//gI"
+RemoveTrailingWhitespaces="s/\s*$//"
+RemoveComas="s/,//g"
+ReplaceSpacesWithNewLines="s/ +/\s/g"
 
 grep --line-buffered -Ei "$GrepAndFilter" /dev/stdin \
-    | sed -E "s/^\s*($GrepAndFilter)\s+//gI;s/\s*$//;s/,//g;s/ +/\n/g;s/\n+/\n/g" \
+    | sed -E "$RemoveBadMatch; $RemoveTrailingWhitespaces; $RemoveComas; $ReplaceSpacesWithNewLines" \
     | rev | sort -u | rev
