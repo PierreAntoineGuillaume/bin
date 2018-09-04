@@ -1,0 +1,22 @@
+#!/bin/bash
+if [ "$#" -ne 1 ];
+then
+    echo "requireArgs : Error. Syntax : requireArgs count"
+    exit 1;
+fi;
+
+set -euo pipefail
+IFS=' ' read -r -a array <<< $(ps -o args= $PPID)
+array=("${array[@]:2}")
+if [[ ${#array[@]} -lt $1 ]];then
+    exit 1;
+fi
+
+exit 0
+
+# example usage
+
+if ! requireArgs 3;then
+    echo "Error : not enough arguments"
+    exit 1;
+fi
