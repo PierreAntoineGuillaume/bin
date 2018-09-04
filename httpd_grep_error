@@ -1,3 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-/usr/bin/tail -f -n 0 /var/log/$HTTPD_NAME/error.log | grep --line-buffered ':error'
