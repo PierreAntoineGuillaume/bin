@@ -1,0 +1,39 @@
+#!/bin/bash
+set -euo pipefail
+
+echoerr (){
+    printf "%s\n" "$*" >&2;
+}
+
+
+if [ ! -d  "$importModuleBaseDirectory" ];then
+    echoerr "Error, \$importModuleBaseDirectory is not a directory";
+    exit 1;
+fi
+
+if ! requireArgs 1; then
+    echoerr "Error, Usage : importModule <module name>"
+    exit 1
+fi
+
+wholeElement="$importModuleBaseDirectory/$1"
+
+if [ ! -d "$wholeElement"  ]; then
+    echoerr "Error, no such module $1";
+    exit 1;
+fi
+
+IFS=":" read -r patharray <<< "$PATH"
+
+containsElement(){
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done;
+    return 1;
+}
+
+if containsElement "$wholeElement" "${patharray[@]}";then
+    exit 0;
+fi
+
+export PATH="$PATH:$wholeElement"
