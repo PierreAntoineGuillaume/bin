@@ -16,15 +16,6 @@ if ! requireArgs 1; then
     exit 1
 fi
 
-wholeElement="$importModuleBaseDirectory/$1"
-
-if [ ! -d "$wholeElement"  ]; then
-    echoerr "Error, no such module $1";
-    exit 1;
-fi
-
-IFS=":" read -r patharray <<< "$PATH"
-
 containsElement(){
     local e match="$1"
     shift
@@ -32,7 +23,31 @@ containsElement(){
     return 1;
 }
 
-if containsElement "$wholeElement" "${patharray[@]}";then
-    echo "contains element"
-    exit 0;
-fi
+implode(){
+    local IFS="$1";
+    shift
+    echo "$*"
+}
+
+IFS=":" read -r patharray <<< "$PATH"
+
+append="";
+
+while (( "$#" ))
+do
+    wholeElement="$importModuleBaseDirectory/$1"
+    shift
+
+    if [ ! -d "$wholeElement"  ]; then
+        echoerr "Error, no such module $1";
+        exit 1;
+    fi
+
+    if containsElement "$wholeElement" "${patharray[@]}";then
+        continue 
+    fi
+
+    patharray+=("$wholeElement")
+done
+
+implode : "${patharray[@]}"
