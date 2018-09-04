@@ -33,7 +33,6 @@ containsElement(){
 }
 
 if containsElement "$wholeElement" "${patharray[@]}";then
+    echo "contains element"
     exit 0;
 fi
-
-export PATH="$PATH:$wholeElement"
