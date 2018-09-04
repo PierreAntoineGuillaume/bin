@@ -1,0 +1,3 @@
+#!/bin/bash
+set -euo pipefail
+mysql --user="$SQL_USER" --password="$SQL_PASSWORD" "$@" < /dev/stdin
