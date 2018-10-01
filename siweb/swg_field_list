@@ -47,7 +47,7 @@ main (){
                 , CrChamp                                  AS champ
                 , CrIntitule                               AS intitule
                 FROM sys_criteres
-     ) c WHERE cle LIKE '$3' ORDER BY champ" | query_sql "$TICKET_SQL_USER" "$TICKET_SQL_PASSWORD" "$1" "$2" |  delim
+     ) c WHERE cle LIKE '$3' ORDER BY champ" | query_sql "$SQL_USER" "$SQL_PASSWORD" "$1" "$2" |  delim
 }
 
 main $@

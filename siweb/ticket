@@ -23,7 +23,7 @@ exit_error ()
 
 sql ()
 {
-    mysql --user="$TICKET_SQL_USER" --password="$TICKET_SQL_PASSWORD" -h "srv19.siweb.fr"  --database "siweb" --skip-column-names "$@" < /dev/stdin
+    mysql --user="$SQL_USER" --password="$SQL_PASSWORD" -h "srv19.siweb.fr"  --database "siweb" --skip-column-names "$@" < /dev/stdin
 }
 
 
@@ -89,7 +89,7 @@ while (( "$#" )); do
             shift 
             if (( "$#" ));then
                 if [ -z ${TICKET_USNUM+x} ]; then
-                    echo "$SOFT : variable TICKET_SQL_USER not set"
+                    echo "$SOFT : variable SQL_USER not set"
                     exit
                 fi
                 case "$1" in
