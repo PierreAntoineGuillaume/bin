@@ -4,14 +4,16 @@ set -euo pipefail
 
 SOFT="$(basename $0)"
 
+tempfile=$(mktemp)
+
 if grep -Eq "$1" "$3"
 then
     echo "Found «$1» IN $3, replacing with «$2»"
-    sed -E "s/$1/$2/g" "$3" > "$4"
-    if ! cmp -s "$3" "$4"
+    sed -E "s/$1/$2/g" "$3" > "$tempfile"
+    if ! cmp -s "$3" "$tempfile"
     then
         echo "Overwriting $3"
-        mv "$4" "$3"
+        mv "$tempfile" "$3"
     fi
 fi
 
