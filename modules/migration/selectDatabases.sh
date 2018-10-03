@@ -6,6 +6,12 @@ set -euo pipefail
 
 file="$(mktemp)"
 
+if test "$#" -lt 4
+then
+    >&2 echo "Usage : $0 target username password message"
+    exit 1
+fi
+
 target="$1"
 username="$2"
 password="$3"
