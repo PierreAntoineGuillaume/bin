@@ -1,10 +1,5 @@
-#!/bin/bash
-
-GrepAndFilter="ServerName|ServerAlias"
-RemoveBadMatch="s/^\s*($GrepAndFilter)\s+//gI"
-RemoveTrailingWhitespaces="s/\s*$//"
-RemoveComas="s/,//g"
-ReplaceSpacesWithNewLines="s/ +/\s/g"
-
-grep --line-buffered -Ei "$GrepAndFilter" /dev/stdin \
-    | sed -E "$RemoveBadMatch; $RemoveTrailingWhitespaces; $RemoveComas; $ReplaceSpacesWithNewLines"
+#!/bin/sed -Ef
+/^\s*Server(Name|Alias)\s+/!d
+s/,//g
+s/\s+$//
+s/ +/\n/g
