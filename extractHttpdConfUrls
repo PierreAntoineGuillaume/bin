@@ -1,6 +1,6 @@
 #!/bin/sed -Ef
-/^\s*Server(Name|Alias)\s+/!d
-s/Server(Name|Alias)//
+/^\s*Server(Name|Alias)\s+/I!d
+s/\s*Server(Name|Alias)\s+//I
 s/,//g
 s/\s+$//
 s/ +/\n/g
