@@ -1,6 +1,16 @@
 #!/bin/sed -Ef
+
+# filter non url
 /^\s*Server(Name|Alias)\s+/I!d
+
+# remove prefix
 s/\s*Server(Name|Alias)\s+//I
+
+# remove commas
 s/,//g
+
+# remote trailing whitespaces
 s/\s+$//
+
+# inline each result
 s/ +/\n/g
