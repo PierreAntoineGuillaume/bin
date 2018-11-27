@@ -1,0 +1,9 @@
+computePS1(){
+    branch="$(gitBranchName)"
+    if [ $? -eq 0 ]; then
+        export PS1="[\u@$branch \W]\$ "
+    else
+        export PS1="[\u@\h \W]\$ "
+    fi
+}
+export PROMPT_COMMAND="computePS1"
