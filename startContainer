@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -euo pipefail
+
+err(){
+	echo "$@" >> /dev/stderr
+}
+
+
+if test "$#" -lt 1
+then
+    err "usage : $0 containername"
+    exit 1;
+fi
+
+if ! type docker > /dev/null 2>&1
+then
+    err "Docker not installed"
+    if confirmDialog "Install docker?"
+    then
+        sudo dnf install docker
+        sudo usermod -a -G docker "$(id -un)"
+    else
+        exit 2
+    fi
+fi
+
+if getenforce > /dev/null 2>&1;
+then
+	err "Error : Selinux Enabled"
+	if confirmDialog "Disable Selinux?";then
+        sudo setenforce 0
+    else
+        err "Selinux can be troublesome when using docker. Handle with care"
+    fi
+fi
+
+docker run --rm -ti "$@"
