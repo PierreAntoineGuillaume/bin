@@ -6,4 +6,4 @@ host="$1"
 username="$2"
 password="$3"
 
-xfreerdp /u:"$username" /p:"$password" /w:1920 /h:1024 /v:"$host"
+xfreerdp /u:"$username" /p:"$password" /monitors:1 /multimon  /v:"$host"
