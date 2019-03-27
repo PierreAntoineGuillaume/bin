@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if test "$#" -lt 1
+then
+    if test -n "${WORKSPACE-unset}";
+    then
+        path="$WORKSPACE"
+    else
+        echo "Usage : $0 Directory "
+        exit 2
+    fi
+else
+    path="$1"
+fi
+
+find "$WORKSPACE" -name '.git' -type d -prune -exec bash -c '
+base="{}"
+name="$(dirname $base)"
+cd "$name"
+git rev-parse 2> /dev/null || exit
+echo "Fetchting $name ($base)"
+git fetch
+' \;
