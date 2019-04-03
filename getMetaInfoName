@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if test "$#" -lt 1;
+then
+    echo "Usage : $0 file.ogg..." >> /dev/stderr
+    exit 1
+fi
+
+if ! test -f "$1"
+then
+    echo "Error : $1 must be a regular file" >> /dev/stderr
+    exit 2
+fi
+
+info="$(exiftool "$1" -s -s)"
+
+artist="$(grep "Artist" <<< "$info")"
+fileType="$(grep "FileTypeExtension" <<< "$info")"
+title="$(grep "Title" <<< "$info")"
+
+echo "${artist#*: } - ${title#*: }.${fileType#*: }"

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd ~/Musique
+find ~/Téléchargements/Musique -type f -exec bash -c 'mv "{}" ./"$(getMetaInfoName "{}")"' \;
