@@ -21,3 +21,4 @@ ensureNotExists
 
 echo '#!/bin/bash' >> "$file";
 chmod +x "$file";
+editor "$file"
