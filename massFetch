@@ -20,6 +20,7 @@ base="{}"
 name="$(dirname $base)"
 cd "$name"
 git rev-parse 2> /dev/null || exit
-echo -e "\e[92mFetchting $name ($base)\e[39m"
+echo -e "\e[92mFetchting $name ($base)\e[31m"
 git fetch
+printf "\e[39m"
 ' \;
