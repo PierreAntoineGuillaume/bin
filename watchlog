@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-file="$1"
+file=$1
 shift
 
 tail -f "$file" -n 0 | stdbuf -i0 -o0 -e 0 "$@"
