@@ -11,17 +11,16 @@ fi
 lookFor="phpunit.xml"
 
 topLevel=$(git rev-parse --show-toplevel)
-count=0;
+count=false
 
-find "$topLevel" -not \( -path "*vendor*" -prune \) -name "$lookFor" -print0 |
 while IFS= read -r -d $'\0' line
 do
-    count=$((1+count))
+    count=true
     echo "Executing tests for configuration file «$line»"
     phpunit --configuration "$line"
-done
+done  < <(find "$topLevel" -not \( -path "*vendor*" -prune \) -name "$lookFor" -print0)
 
-if test "$count" -lt 1
+if ! "$count"
 then
     echo "No tests configuration files ($lookFor)  were found in $topLevel" >> /dev/stderr
     exit 2;
