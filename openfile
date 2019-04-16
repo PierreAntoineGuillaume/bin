@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage(){
+    printf "Error\nUsage: $0 [system] args\n" >> /dev/stderr
+    exit 1;
+}
+
+testArgs(){
+    if test "$#" -lt 1
+    then
+        usage
+        exit  1
+    fi
+}
+
+testArgs "$@"
+
+if test "$1" == "system"
+then
+    local=false;
+    shift
+    testArgs "$@" 
+else
+    local=true;
+fi
+
+if $local
+then
+    find . -regextype sed -regex "$@" -exec phpstorm {} \+ > /dev/null
+else
+    phpstorm "$(locate --regex "$@" 2> /dev/null)" > /dev/null
+fi
