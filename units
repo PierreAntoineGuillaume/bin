@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if ! git rev-parse 2> /dev/null
+then
+    echo "Error : not in a git repository" > /dev/stderr
+    exit 1;
+fi
+
+lookFor="phpunit.xml"
+
+topLevel=$(git rev-parse --show-toplevel)
+count=0;
+
+find "$topLevel" -not \( -path "*vendor*" -prune \) -name "$lookFor" -print0 |
+while IFS= read -r -d $'\0' line
+do
+    count=$((1+count))
+    echo "Executing tests for configuration file «$line»"
+    phpunit --configuration "$line"
+done
+
+if test "$count" -lt 1
+then
+    echo "No tests configuration files ($lookFor)  were found in $topLevel" >> /dev/stderr
+    exit 2;
+fi
+
