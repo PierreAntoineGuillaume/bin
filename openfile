@@ -2,8 +2,10 @@
 
 set -euo pipefail
 
+tag='--system'
+
 usage(){
-    printf "Error\nUsage: $0 [system] args\n" >> /dev/stderr
+    printf "Error : Usage: $(basename "$0") [$tag] args\n" >> /dev/stderr
     exit 1;
 }
 
@@ -17,7 +19,7 @@ testArgs(){
 
 testArgs "$@"
 
-if test "$1" == "system"
+if test "$1" == "$tag"
 then
     local=false;
     shift
