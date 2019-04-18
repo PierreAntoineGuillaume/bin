@@ -16,7 +16,7 @@ count=false
 while IFS= read -r -d $'\0' line
 do
     count=true
-    echo "Executing tests for configuration file «$line»"
+    echo -e "Executing tests for configuration file «\e[4m\e[34m$line\e[0m»"
     phpunit --configuration "$line"
 done  < <(find "$topLevel" -not \( -path "*vendor*" -prune \) -name "$lookFor" -print0)
 
