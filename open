@@ -1,2 +1,6 @@
 #!/bin/bash
-xdg-open "$@" 2> /dev/null 1>&2  &
+while test "$#" -gt 0
+do
+    xdg-open "$1" 2> /dev/null 1>&2  &
+    shift
+done
