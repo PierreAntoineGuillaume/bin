@@ -5,6 +5,6 @@ set -euo pipefail
 source=$1
 target=$2
 
-while inotifywait -r -e modify,create,delete $1; do
-    rsync -avzq --delete --exclude-from=$HOME/.rsyncignore $source $target
+while inotifywait -r -e modify,create,delete "$source"; do
+    rsync -avzq --delete --exclude-from=$HOME/.rsyncignore "$source" "$target"
 done
