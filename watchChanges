@@ -9,3 +9,11 @@ target=$2
 while inotifywait -r -e modify,create,delete "$source"; do
     rsync -avzq --delete --exclude-from=$HOME/.rsyncignore "$source" "$target"
 done
+
+exit
+"Documentation
+
+You have to install rsync and inotify-tools
+
+
+Usage : $0 source target &
