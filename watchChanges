@@ -13,7 +13,6 @@ fi
 source=$1
 target=$2
 
-
 rsyncWrap(){
     rsync -avzq --delete --exclude-from="$HOME/.rsyncignore" "$source" "$target"
 }
