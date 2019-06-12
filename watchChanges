@@ -2,13 +2,26 @@
 
 set -euo pipefail
 
-usage=$'Documentation\n\nYou have to install rsync and inotify-tools\n\n'"Usage : $0 source target &"
+usage="Usage : $0 source target &"
+
+if ! which rsync >> /dev/null
+then
+    echo "Can't find rsync, please install it and verify your PATH" >> /dev/stderr
+    exit 2;
+fi
+
+if ! which inotifywait >> /dev/null
+then
+    echo "Can't find inotifywait, please install inotify-tools and verify your PATH" >> /dev/stderr
+    exit 3
+fi
 
 if test "$#" -lt 2
 then
-    echo "$usage"
-    exit 2;
+    echo "$usage" >> /dev/stderr
+     exit 1;
 fi
+
 
 source=$1
 target=$2
