@@ -4,3 +4,4 @@ do
     xdg-open "$1" 2> /dev/null 1>&2  &
     shift
 done
+
