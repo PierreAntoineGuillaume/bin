@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-usage=$'Documentation\n\nYou have to install rsync and inotify-tools\n\nUsage : $0 source target &'
+usage=$'Documentation\n\nYou have to install rsync and inotify-tools\n\n'"Usage : $0 source target &"
 
 if test "$#" -lt 2
 then
