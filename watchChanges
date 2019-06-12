@@ -2,23 +2,23 @@
 
 set -euo pipefail
 
+usage=$'Documentation\n\nYou have to install rsync and inotify-tools\n\nUsage : $0 source target &'
+
+if test "$#" -lt 2
+then
+    echo "$usage"
+    exit 2;
+fi
+
 source=$1
 target=$2
 
 
 rsyncWrap(){
-    rsync -avzq --delete --exclude-from=$HOME/.rsyncignore "$source" "$target"
+    rsync -avzq --delete --exclude-from="$HOME/.rsyncignore" "$source" "$target"
 }
 
 rsyncWrap
 while inotifywait -r -e modify,create,delete,move "$source"; do
     rsyncWrap
 done
-
-exit
-"Documentation
-
-You have to install rsync and inotify-tools
-
-
-Usage : $0 source target &
