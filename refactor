@@ -9,7 +9,7 @@ DIRECTORY="."
 FILES_TYPE="*.php"
 
 
-trap cleanup EXIT
+#trap cleanup EXIT
 
 if [ "$#" -lt 2  ];then
     echo "Usage : $SOFT \"recherche\" \"remplacement\""
