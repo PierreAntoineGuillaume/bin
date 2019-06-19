@@ -17,11 +17,12 @@ fi
 
 find "$WORKSPACE" -name '.git' -type d -prune -exec bash -c '
 action=fetch
+tag=-p
 base="{}"
 name="$(dirname $base)"
 cd "$name"
 git rev-parse 2> /dev/null || exit
 echo -e "\e[92mFetching $(basename "$name") ($base)\e[31m"
-git "$action"
+git "$action" "$tag"
 printf "\e[39m"
 ' \;
