@@ -12,8 +12,8 @@ fi
 core="${1%%\.conf}"
 document="$WORKSPACE/$core"
 
-if [ "$#" -eq 2 ] && [  "$2" == "php7" ];then
-    findv="$(find /var/run/php -name 'php7*.sock')"
+if [ "$#" -eq 2 ] && [  "$2" == "fpm" ];then
+    findv="$(find /var/run/php* -name 'php*.sock')"
     fpm=$(cat<<EOF 
 <FilesMatch \\.php$>
         SetHandler "proxy:unix:$findv|fcgi://$core/"
@@ -26,7 +26,7 @@ if [ "$#" -eq 2 ] && [  "$2" == "php7" ];then
     RewriteRule (.*) - [H=text/html]
 EOF
 )
-    option='php7'
+    option='fpm'
 elif [ "$#" -gt 2  ] && [ "$2" == 'indirection'  ];then
     document="$WORKSPACE/$3"
     option='indirect'
