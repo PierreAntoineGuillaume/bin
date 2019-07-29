@@ -32,10 +32,10 @@ source=$1
 target=$2
 
 log () {
-    logger -t "$(basename $0)" "$@"
+    logger -t "Sync-$(basename $source)" "$@"
 }
 
-log starting $(basename $source)
+log starting synchronization
 
 rsyncWrap(){
     timeout 5 rsync -avzq --delete --exclude-from="$rsyncignore" "$source" "$target"
@@ -58,4 +58,4 @@ while $flag && inotifywait -q -r -e modify,create,delete,move "$source" ; do
     rsyncWrap
 done
 
-log ending $(basename $source)
+log ending synchronization
