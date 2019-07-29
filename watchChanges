@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 usage="Usage : $0 source target &"
 
 if ! which rsync >> /dev/null
@@ -16,6 +14,13 @@ then
     exit 3
 fi
 
+rsyncignore="$HOME/.rsyncignore"
+
+if ! test -f "$rsyncignore"; then
+    echo "File ~/.$(basename $rsyncignore) does not exist, aborting ..." >> /dev/stderr
+    exit 4
+fi
+
 if test "$#" -lt 2
 then
     echo "$usage" >> /dev/stderr
@@ -26,11 +31,31 @@ fi
 source=$1
 target=$2
 
-rsyncWrap(){
-    rsync -avzq --delete --exclude-from="$HOME/.rsyncignore" "$source" "$target"
+log () {
+    logger -t "$(basename $0)" "$@"
 }
 
+log starting $(basename $source)
+
+rsyncWrap(){
+    timeout 5 rsync -avzq --delete --exclude-from="$rsyncignore" "$source" "$target"
+    retour=$?
+    if ! test $retour -eq 0; then
+        log Erreur dans le retour de rsync: $retour
+    fi
+}
+
+flag=true
+
+toggleFlag(){
+    flag=false
+}
+
+trap toggleFlag SIGTERM
+
 rsyncWrap
-while inotifywait -r -e modify,create,delete,move "$source"; do
+while $flag && inotifywait -q -r -e modify,create,delete,move "$source" ; do
     rsyncWrap
 done
+
+log ending $(basename $source)
