@@ -1,0 +1,22 @@
+#!/bin/bash
+
+
+prefix=''
+
+if test "$#" -gt 0; then
+    prefix=${1%%/*}/
+fi
+
+for file in $(find . -name *.php);
+do
+    ns=${file:2};
+    file_t="$file.tmp";
+    echo $'<?php\n' > $file_t
+    ns=${ns%.php};
+    ns="namespace $prefix$ns"
+    ns="${ns%/*};"
+    ns=$(echo $ns | tr / \\\\)
+    echo ${ns} $'\n\n' >> $file_t;
+    sed -En "/^\s*(use|class|abstract|interface)/,$ p" $file >> $file_t;
+    mv $file_t $file
+done
