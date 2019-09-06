@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import logging
+from stat import *
+import pwd
+import grp
+
+logging.basicConfig(format='%(message)s')
+
+
+class MetInterdiction(BaseException):
+    pass
+
+
+def check_user_rights(stat, uid, octal_mode, perm):
+    return check_stat_rights(stat.st_uid, uid, get_user_perm(octal_mode), perm)
+
+
+def check_group_rights(stat, gid, octal_mode, perm):
+    return check_stat_rights(stat.st_gid, gid, get_group_perm(octal_mode), perm)
+
+
+def check_stat_rights(stat_ref, target_ref, node_mode, perm):
+    if stat_ref == target_ref:
+        if not node_mode & perm:
+            raise MetInterdiction
+        return True
+    return False
+
+
+def check_other_rights(octal_mode, perm):
+    return get_other_perm(octal_mode) & perm
+
+
+def check_perm_from_main(reference_name, required, path):
+    try:
+        uid = user_exists(reference_name)
+        gid = groups_exits(reference_name)
+        stat = os.stat(path)
+
+        return (uid >= 0 and check_permission(required, stat, uid, check_user_rights)) or (
+                gid >= 0 and check_permission(required, stat, gid, check_group_rights)) or check_permission_other(
+            required, stat)
+    except MetInterdiction:
+        return False
+    except Exception as e:
+        logging.error(str(e))
+        sys.exit(2)
+
+
+def check_permission(required, stat, ref_id, method):
+    octal_mode = stat[ST_MODE]
+    for letter in required:
+        if not method(stat, ref_id, octal_mode, get_adequate_perm(letter)):
+            return False
+    return True
+
+
+def check_permission_other(required, stat):
+    mode = get_other_perm(stat[ST_MODE])
+    for letter in required:
+        if not mode & get_adequate_perm(letter):
+            return False
+    return True
+
+
+def get_adequate_perm(letter):
+    associative = {
+        'r': can_read(),
+        'w': can_write(),
+        'x': can_execute()
+    }
+    return associative.get(letter)
+
+
+def user_exists(reference_name):
+    try:
+        return pwd.getpwnam(reference_name).pw_uid
+    except KeyError:
+        return -1
+
+
+def groups_exits(reference_name):
+    try:
+        return grp.getgrnam(reference_name).gr_gid
+    except KeyError:
+        return -1
+
+
+def get_user_perm(flags):
+    return flags & S_IRWXU
+
+
+def get_group_perm(flags):
+    return flags & S_IRWXG
+
+
+def get_other_perm(flags):
+    return flags & S_IRWXO
+
+
+def can_read():
+    return S_IRUSR | S_IRGRP | S_IROTH
+
+
+def can_write():
+    return S_IWUSR | S_IWGRP | S_IWOTH
+
+
+def can_execute():
+    return S_IXUSR | S_IXGRP | S_IXOTH
+
+
+if __name__ == '__main__':
+    if not check_perm_from_main(sys.argv[1], sys.argv[2], sys.argv[3]):
+        exit(1)
+    exit(0)
