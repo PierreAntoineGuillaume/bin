@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+echo "Updating Content ..."
+flag=''
+gitArgs=()
+while test "$#" -gt 0
+do
+    case "$1" in
+        -d)
+            flag=d
+            ;;
+        -D)
+            flag=D
+            ;;
+        -C)
+            shift
+            gitArgs=("-C" "${1%/}")
+            ;;
+
+    esac
+    shift
+done
+
+git "${gitArgs[@]}" fetch -p
+
+deletedBranches=''
+while read -r branch
+do
+    if [ "$branch" = "*" ];
+    then
+        echo "Warning: Your current local branch is deleted on remote." >&2
+        continue
+    fi
+    deletedBranches="$deletedBranches, $branch"
+    if [ -z "$flag" ]; then
+        git "${gitArgs[@]}" branch -$flag "$branch"
+    fi
+done < <(LANG= git "${gitArgs[@]}" branch -vv | awk '/: gone/ {print $1}')
+
+if [ -n "$deletedBranches" ]; then
+    deletedBranches=${deletedBranches/, }
+    if [ -n "$flag" ]; then
+        echo "Branches to be trimmed : $deletedBranches"
+    else
+        echo "Trimed branches : $deletedBranches"
+    fi
+else
+    echo "No branches to trim"
+fi
