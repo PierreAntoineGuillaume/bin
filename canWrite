@@ -1,0 +1,28 @@
+#!/bin/bash
+
+usage(){
+    echo "Usage : $0 username path"
+}
+
+if [ "$#" -lt 2 ]; then
+  usage >&2
+  exit 1;
+fi
+
+username=$1
+path=$2
+
+USERSTRING=()
+if getent passwd "$username" > /dev/null; then
+  USERSTRING=('(' "-user" "$username" "-perm" "-u=w" ')' "-or")
+fi
+
+GROUPSTRING=()
+if getent group "$username" > /dev/null; then
+  GROUPSTRING=('(' '-group' "$username" "-perm" "-g=w" ')' "-or")
+fi
+
+OTHERSTRING=('(' "-perm" "-o=w" ')')
+
+exit "$(find "$path" -maxdepth 0 \
+      -not '(' "${USERSTRING[@]}" "${GROUPSTRING[@]}" "${OTHERSTRING[@]}" ')' -printf '.' | wc -c )"
