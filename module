@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage(){
+    echo "Usage : $0 modulename"
+}
+
+if [ "$#" -lt 1 ];then
+    usage >&2
+    exit 1
+fi
+
+load=$1
+
+curpath=$(realpath "$0")
+curpath=${curpath%/*}
+modulePath=$curpath/modules
+
+declare -A list
+list[symfony]=$modulePath/symfony
+list[migration]=$modulePath/migration
+
+if [[ -v "list[$load]" ]]; then
+    PATH="${list[$load]}:$PATH" bash
+    exit 0
+fi
+
+exit 2
