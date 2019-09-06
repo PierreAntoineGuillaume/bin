@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage(){
+    echo "Usage : $0 searching-path"
+}
+
+if [ "$#" -lt 1 ]; then
+    usage >&2
+    exit
+fi
+
+match=$1
+path=$PWD
+while [ -n "$path" ];
+do
+    if [ -e "$path/$1" ]; then
+        echo "$path"
+        exit
+    fi
+    path=${path%/*}
+done
+
+exit 1
