@@ -22,4 +22,9 @@ do
     path=${path%/*}
 done
 
+if [ -e "/$1" ]; then
+    echo /
+    exit
+fi
+
 exit 1
