@@ -6,7 +6,7 @@ SPATH=${SPATH%:}
 cd "$SPATH"
 
 while [ "$#" -gt 0 ]; do
-    printf "#!/bin/bash\n\nsymfony_console \"%s:\$@\#" "$1" > "$1"
+    printf "#!/bin/bash\n\nsymfony_console \"%s:\$@\"" "$1" > "$1"
     chmod a+x "$1"
     shift
 done
