@@ -35,14 +35,14 @@ do
         continue
     fi
     deletedBranches="$deletedBranches, $branch"
-    if [ -z "$flag" ]; then
+    if [ -n "$flag" ]; then
         git "${gitArgs[@]}" branch -$flag "$branch"
     fi
 done < <(LANG= git "${gitArgs[@]}" branch -vv | awk '/: gone/ {print $1}')
 
 if [ -n "$deletedBranches" ]; then
     deletedBranches=${deletedBranches/, }
-    if [ -n "$flag" ]; then
+    if [ -z "$flag" ]; then
         echo "Branches to be trimmed : $deletedBranches"
     else
         echo "Trimed branches : $deletedBranches"
