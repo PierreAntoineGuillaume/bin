@@ -1,11 +1,3 @@
 #!/bin/bash
 
-console="$(getMatchingPath "bin/console")"
-
-set -euo pipefail
-if [ -z "$console" ];then
-    echo "Not in a symfony project" >&2
-    exit 1
-fi
-
-"$console/bin/console" "server:$@"
+symfony_console "server:$@"
