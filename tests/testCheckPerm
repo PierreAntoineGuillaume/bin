@@ -1,0 +1,17 @@
+#!/bin/env bash
+
+PATH="$PWD:$PATH"
+
+f1=$(mktemp)
+
+if ! checkPerm "$(id -un)" w "$f1"; then
+  echo "nominal echec" >/dev/stderr
+fi
+
+chmod u-w "$f1"
+
+if checkPerm "$(id -un)" w "$f1"; then
+  echo "bad nominal echec" >/dev/stderr
+fi
+
+echo "finished"

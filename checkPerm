@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+from lib.FilePermission.Checker import PermissionParser, PermissionReader
+
+
+def usage():
+    return "Usage : user/group-name permissions path"
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Check if some user or group has permissions on some file')
+    parser.add_argument('reference', metavar='name', type=str, help='The name of the user or the group')
+    parser.add_argument('permissions', metavar='permission', type=str, help='The permissions in letters: rwx')
+    parser.add_argument('path', metavar='path', type=str, help='The path of the file or folder')
+    args = parser.parse_args()
+
+    reader = PermissionReader(args.path, PermissionParser(args.permissions))
+    if reader.has_permissions(args.reference):
+        sys.exit(0)
+    sys.exit(1)
