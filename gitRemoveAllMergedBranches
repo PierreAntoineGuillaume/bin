@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+git branch | awk '/^[^*]/{ print  }' | xargs git branch -d 2> /dev/null
