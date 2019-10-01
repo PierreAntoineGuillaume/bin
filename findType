@@ -1,3 +1,8 @@
 #!/bin/bash
 
-find . -name "*.$1" -type f
+set -euo pipefail
+
+type="$1"
+shift
+
+find "$PWD" -name "*.$type" -type f "$@"
