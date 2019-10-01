@@ -3,9 +3,6 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# shellcheck source=.dev/context.sh
-. "$(dirname "$0")/.dev/context.sh"
-
 usage(){
   echo "usage : $0 [ -d or -D | -C <directory> ]"
   echo "    lists branches that were deleted from remote"
