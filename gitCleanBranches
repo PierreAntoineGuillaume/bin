@@ -4,7 +4,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 usage(){
-  echo "usage : $0 [ -d or -D | -C <directory> ]"
+  echo "usage : gitCleanBranches [ -d or -D | -C <directory> ]"
   echo "    lists branches that were deleted from remote"
   echo "    -d deletes branches that were deleted from remote (with no unmerged commits)"
   echo "    -D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
