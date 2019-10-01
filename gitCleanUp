@@ -3,6 +3,23 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# shellcheck source=.dev/context.sh
+. "$(dirname "$0")/.dev/context.sh"
+
+usage(){
+  echo "usage : $0 [ -d or -D | -C <directory> ]"
+  echo "    lists branches that were deleted from remote"
+  echo "    -d deletes branches that were deleted from remote (with no unmerged commits)"
+  echo "    -D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
+  echo "    -C target behaves like git's -C"
+
+}
+
+if is_help "$@"; then
+  usage
+  exit
+fi
+
 echo "Updating Content ..."
 flag=''
 gitArgs=()
@@ -38,7 +55,7 @@ do
     if [ -n "$flag" ]; then
         git "${gitArgs[@]}" branch -$flag "$branch"
     fi
-done < <(LANG= git "${gitArgs[@]}" branch -vv | awk '/: gone/ {print $1}')
+done < <(LANG='' git "${gitArgs[@]}" branch -vv | awk '/: gone/ {print $1}')
 
 if [ -n "$deletedBranches" ]; then
     deletedBranches=${deletedBranches/, }
