@@ -1,0 +1,25 @@
+#!/bin/bash
+
+usage() {
+  printf "Usage : findMissingFiles <directory>"
+  documentation=(
+    "Reads from stdin to find missing files from <directory>"
+  )
+  printf "\n  # %s" "${documentation[@]}"
+  printf "\n"
+}
+
+if is_help "$@"; then
+  usage
+  exit
+fi
+
+set -euo pipefail
+
+refDirectory=${1%/}
+
+while read -r line; do
+  if [ ! -e "$refDirectory/$line" ]; then
+    echo "$line"
+  fi
+done
