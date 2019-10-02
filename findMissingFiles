@@ -5,7 +5,7 @@ usage() {
   documentation=(
     "Reads from stdin to find missing files from <directory>"
   )
-  printf "\n  # %s" "${documentation[@]}"
+  printf "\n  × %s" "${documentation[@]}"
   printf "\n"
 }
 
