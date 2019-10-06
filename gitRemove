@@ -4,18 +4,18 @@ set -euo pipefail
 IFS=$'\n\t'
 
 usage() {
-  echo "Usage: gitRemove -n | -f"
-  doc=('-n dry run' '-f remove')
+  echo "Usage: gitRemove [ -i  / --interactive | -f / --force ]"
+  doc=('-i / --interactive -> dry run' '-f / --force -> remove')
   printf "  %s\n" "${doc[@]}"
 }
 
-flag=''
+flag='n'
 while [ "$#" -gt 0 ]; do
   case "$1" in
-  "-n")
-    flag='n'
+  "-i" | "--interactive")
+    flag='i'
     ;;
-  "-f")
+  "-f" | "--force")
     flag='f'
     ;;
   "-h" | "--help")
@@ -29,8 +29,8 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
-if [ -z "$flag" ]; then
-  exitError 2 "Missing parameter flag" "$(usage)"
+if [ "$flag" = 'n' ]; then
+  LANG='' git clean -dxne .idea | sed 's#^Would remove # → #'
+else
+  LANG='' git clean -dx "-$flag" -e .idea
 fi
-
-git clean -dx "-$flag" -e .idea
