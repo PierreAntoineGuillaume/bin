@@ -1,0 +1,56 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+  echo "gitCheckPushed [ -q | --quiet ] <gitdir...>"
+  documentation=(
+    "gitdir : target git directory"
+  )
+  printf "  » %s\n" "${documentation[@]}"
+}
+
+quiet=false
+gitRepo=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  "-q" | "--quiet")
+    quiet=true
+    ;;
+  "-h" | "--help")
+    usage
+    exit
+    ;;
+  *)
+    gitRepo+=("$1")
+    ;;
+
+  esac
+  shift
+done
+
+if [ -z "${gitRepo[*]}" ]; then
+  gitRepo=("$PWD")
+fi
+
+checkLog() {
+  git -C "$1" log --branches --not --remotes
+}
+
+content=()
+for repo in "${gitRepo[@]}"; do
+  tempContent="$(checkLog "$repo")"
+  if [ -n "$tempContent" ]; then
+    content+=("$tempContent")
+  fi
+done
+
+if [ -z "${content[*]}" ]; then
+  exit 0
+fi
+
+if ! $quiet; then
+  printf "%s\n" "${content[@]}"
+fi
+
+exit 1
