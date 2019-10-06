@@ -47,7 +47,7 @@ code=$1
 shift
 
 if ! $quiet; then
-  echo "Error: " >&2
+  printf "Error: " >&2
   # shellcheck disable=SC2059
   printf "$errorFormat" "$@"
 fi
