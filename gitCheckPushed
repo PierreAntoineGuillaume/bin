@@ -15,7 +15,7 @@ quiet=false
 folderList=()
 customRepoFormat="%s\n"
 customCommitFormat="  %s\n"
-customEOL="\n"
+customEOL=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
   "-q" | "--quiet")
