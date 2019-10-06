@@ -37,11 +37,13 @@ checkLog() {
   git -C "$1" log --branches --not --remotes --oneline
 }
 
+newLine=$'\n'
+indent="${newLine}  "
 content=()
 for repo in "${gitRepo[@]}"; do
   tempContent="$(checkLog "$repo")"
   if [ -n "$tempContent" ]; then
-    content+=("$tempContent")
+    content+=("${repo%/}:${indent}${tempContent/${newLine}/${indent}}")
   fi
 done
 
