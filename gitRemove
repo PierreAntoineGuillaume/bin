@@ -3,24 +3,34 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-flag='';
+usage() {
+  echo "Usage: gitRemove -n | -f"
+  doc=('-n dry run' '-f remove')
+  printf "  %s\n" "${doc[@]}"
+}
+
+flag=''
 while [ "$#" -gt 0 ]; do
-    case "$1" in
-        "-n")
-            flag='n'
-            ;;
-        "-f")
-            flag='f'
-            ;;
-        *)
-            exitError 1 "Unknown symbol $1"
-            ;;
-    esac
-    shift
+  case "$1" in
+  "-n")
+    flag='n'
+    ;;
+  "-f")
+    flag='f'
+    ;;
+  "-h" | "--help")
+    usage
+    exit
+    ;;
+  *)
+    exitError 1 "Unknown symbol $1"
+    ;;
+  esac
+  shift
 done
 
 if [ -z "$flag" ]; then
-    exitError 2 "Missing parameter"
+  exitError 2 "Missing parameter flag" "$(usage)"
 fi
 
 git clean -dx "-$flag" -e .idea
