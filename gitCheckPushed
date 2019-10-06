@@ -3,15 +3,19 @@
 set -euo pipefail
 
 usage() {
-  echo "gitCheckPushed [ -q | --quiet ] <gitdir...>"
+  echo "gitCheckPushed [ -q | --quiet ] <gitdir...> [ --format <format repo> <format commit>]"
   documentation=(
     "gitdir : target git directory"
+    "format : how to print repos and commits, printf syntax"
   )
   printf "  » %s\n" "${documentation[@]}"
 }
 
 quiet=false
-gitRepo=()
+folderList=()
+customRepoFormat="%s\n"
+customCommitFormat="  %s\n"
+customEOL="\n"
 while [ "$#" -gt 0 ]; do
   case "$1" in
   "-q" | "--quiet")
@@ -21,38 +25,61 @@ while [ "$#" -gt 0 ]; do
     usage
     exit
     ;;
+  "--format")
+    if [ "$#" -lt 4 ]; then
+      exitError 2 "format : not enough parameters"
+    fi
+    customRepoFormat=$2
+    customCommitFormat=$3
+    customEOL=$4
+    shift 3
+    ;;
   *)
-    gitRepo+=("$1")
+    folderList+=("${1%/}/")
     ;;
 
   esac
   shift
 done
 
+if [ -z "${folderList[*]}" ]; then
+  folderList=("$PWD")
+fi
+
+gitRepo=()
+for folder in "${folderList[@]}"; do
+  if [ -d "$folder/.git" ]; then
+    gitRepo+=("$folder")
+  fi
+done
+
 if [ -z "${gitRepo[*]}" ]; then
-  gitRepo=("$PWD")
+  exitError 3 "No git repository in arg list"
 fi
 
 checkLog() {
   git -C "$1" log --branches --not --remotes --oneline
 }
 
-newLine=$'\n'
-indent="${newLine}  "
-content=()
-for repo in "${gitRepo[@]}"; do
-  tempContent="$(checkLog "$repo")"
-  if [ -n "$tempContent" ]; then
-    content+=("${repo%/}:${indent}${tempContent/${newLine}/${indent}}")
+quietPrintf() {
+  if ! $quiet; then
+    # shellcheck disable=SC2059
+    printf "$@"
   fi
+}
+
+success=true
+for repo in "${gitRepo[@]}"; do
+  quietPrintf "$customRepoFormat" "$repo"
+  while read -r line; do
+    success=false
+    quietPrintf "$customCommitFormat" "$line"
+  done < <(checkLog "$repo")
+  quietPrintf "$customEOL"
 done
 
-if [ -z "${content[*]}" ]; then
+if $success; then
   exit 0
-fi
-
-if ! $quiet; then
-  printf "%s\n" "${content[@]}"
 fi
 
 exit 1
