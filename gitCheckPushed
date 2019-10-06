@@ -34,7 +34,7 @@ if [ -z "${gitRepo[*]}" ]; then
 fi
 
 checkLog() {
-  git -C "$1" log --branches --not --remotes
+  git -C "$1" log --branches --not --remotes --oneline
 }
 
 content=()
