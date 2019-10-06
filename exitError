@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+  echo "exitError <code> <...messages> [ -q | --quiet ] "
+  documentation=(
+    "code : Error code to exit with."
+    "messages : The error message to output"
+    "addNewLineFor : Appends a new line to the error output, with <addNewLineFor> as a text"
+  )
+  printf "  » %s\n" "${documentation[@]}"
+}
+
+arguments=()
+newLineStrings=()
+quiet=false
+errorFormat='%s\n'
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  "-q" | "--quiet")
+    quiet=true
+    ;;
+  "-h" | "--help")
+    usage
+    exit
+    ;;
+  "-n" | "--newline")
+    shift
+    newLineStrings+=("$1")
+    ;;
+  "--format")
+    shift
+    errorFormat=$1
+    ;;
+  *)
+    arguments+=("$1")
+    ;;
+
+  esac
+  shift
+done
+
+set "${arguments[@]}"
+
+code=$1
+shift
+
+if ! $quiet; then
+  echo "Error: " >&2
+  # shellcheck disable=SC2059
+  printf "$errorFormat" "$@"
+fi
+exit "$code"
