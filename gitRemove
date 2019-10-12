@@ -31,6 +31,8 @@ done
 
 if [ "$flag" = 'n' ]; then
   LANG='' git clean -dxne .idea | sed 's#^Would remove # → #'
+elif [ "$flag" = 'f' ]; then
+  LANG='' git clean -dxfe .idea | sed 's#^Removing # → #'
 else
   LANG='' git clean -dx "-$flag" -e .idea
 fi
