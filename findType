@@ -1,6 +1,32 @@
 #!/bin/bash
 
 set -euo pipefail
+#IFS=$'\n\t'
+usage(){
+    echo "Usage: $(basename "$0") <ext> <find args>"
+}
+
+arguments=()
+maxdepth=''
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+    "-h" | "--help")
+        usage
+        exit
+        ;;
+    *)
+        arguments+=("$1")
+        ;;
+    esac
+    shift
+done
+
+set -- "${arguments[@]}"
+
+if [ "$#" -lt 1 ]; then
+    exitError 1 "Not enough arguments" "$(usage)"
+fi
 
 type="$1"
 shift
