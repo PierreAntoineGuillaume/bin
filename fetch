@@ -1,13 +1,12 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: $(basename "$0")"
+    echo "Usage: $(basename "$0") [ -h ] [ -q | --quiet ] [ -p | --pull ] "
 }
 
 arguments=()
 action=("fetch" "-p")
 help=false
-verbose=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
