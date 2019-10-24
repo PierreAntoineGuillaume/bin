@@ -1,74 +1,55 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $(basename "$0")"
+    echo "Usage: $(basename "$0")"
 }
 
 arguments=()
-quiet=false
+action=("fetch" "-p")
+help=false
+verbose=false
 
-qprintf() {
-  printf "%s\n" "$@"
-}
-
-qprintfError() {
-  qprintf "$@" >&2
-}
-
-action="fetch"
 while [ "$#" -gt 0 ]; do
-  case "$1" in
-  "-h" | "--help")
-    usage
-    exit
-    ;;
-  "-q" | "--quiet")
-    quiet=true
-    ;;
-  "-p" | "--pull")
-    action="pull"
-    ;;
-  *)
-    arguments+=("$1")
-    ;;
-  esac
-  shift
+    case "$1" in
+        "-h" | "--help")
+            usage
+            exit
+            ;;
+        "-q" | "--quiet")
+            exec >/dev/null
+            exec 2>&1
+            ;;
+        "-p" | "--pull")
+            action=("pull")
+            ;;
+        *)
+            arguments+=("$1")
+            ;;
+    esac
+    shift
 done
 
 set -euo pipefail -- "${arguments[@]}"
 IFS=$'\n\t'
 
 if [ "$#" -lt 1 ]; then
-  set "$PWD"
+    set "."
 fi
 
 actuallyFetch() {
-  if [ "$action" = "fetch" ]; then
-    flag=("fetch" "-p")
-  elif [ "$action" = "pull" ]; then
-    flag=("pull")
-  else
-    exitError 1 "unknown method «$action»"
-  fi
-  IFS=' '
-  qprintf "Calling git ${flag[*]} on $1"
-  # shellcheck disable=SC2086
-  git -C "$1" ${flag[*]}
+    IFS=' '
+    printf "Calling git ${action[*]} on $1"
+    # shellcheck disable=SC2086
+    git -C "$1" ${action[*]}
 }
 
-main() {
-  while [ "$#" -gt 0 ]; do
-    if [ ! -d "$1/.git" ]; then
-      qprintfError "$1 is not a git repository"
+while [ "$#" -gt 0 ]; do
+    if [ ! -d "$1" ]; then
+        exitError 1 "$1 is not a directory"
+    elif [ ! -d "$1/.git" ]; then
+        exitError 2 "$1 is not a git repository"
     else
-      actuallyFetch "${1%/}"
+        actuallyFetch "${1%/}"
     fi
     shift
-  done
-}
-
-if "$quiet"; then
-  main "$@" >&2 2>/dev/null
-else
-  main "$@"
-fi
+done
