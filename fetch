@@ -1,0 +1,54 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: $(basename "$0") [ -h ] [ -q | --quiet ] [ -p | --pull ] "
+}
+
+arguments=()
+action=("fetch" "-p")
+help=false
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        "-h" | "--help")
+            usage
+            exit
+            ;;
+        "-q" | "--quiet")
+            exec >/dev/null
+            exec 2>&1
+            ;;
+        "-p" | "--pull")
+            action=("pull")
+            ;;
+        *)
+            arguments+=("$1")
+            ;;
+    esac
+    shift
+done
+
+set -euo pipefail -- "${arguments[@]}"
+IFS=$'\n\t'
+
+if [ "$#" -lt 1 ]; then
+    set "."
+fi
+
+actuallyFetch() {
+    IFS=' '
+    printf "Calling git ${action[*]} on $1"
+    # shellcheck disable=SC2086
+    git -C "$1" ${action[*]}
+}
+
+while [ "$#" -gt 0 ]; do
+    if [ ! -d "$1" ]; then
+        exitError 1 "$1 is not a directory"
+    elif [ ! -d "$1/.git" ]; then
+        exitError 2 "$1 is not a git repository"
+    else
+        actuallyFetch "${1%/}"
+    fi
+    shift
+done
