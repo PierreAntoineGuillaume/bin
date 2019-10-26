@@ -62,17 +62,14 @@ while [ "$#" -gt 0 ]; do
             break;
         ;;
         --*)
-            echo "Unknown long option $1" >&2
-            exit 3
+            exitError 4 "Unknown long option $1" 
         ;;
         -*)
             if [ "${#1}" -eq 1 ]; then
-                echo "Invalid token -" >&2
-                exit 1
+                exitError 5 "Invalid token -"
             fi
             if [ "${#1}" -eq 2 ]; then
-                echo "unknown option $1" >&2
-                exit 2
+                exitError 6 "unknown option $1"
             fi
             first=${1:1:1}
             rest=${1:2}
@@ -93,16 +90,14 @@ if [  "${#type[@]}" -gt 0 ]; then
 fi
 
 if [ "${#arguments[@]}" -lt 1 ]; then
-    echo "Error: missing arguments" >/dev/stderr
-    usage >/dev/stderr
-    exit 1
+    exitError 1 "Error: missing arguments" "$(usage)"
 fi
 
 argLine(){
     printf "%s" "${emojis[*]}${arguments[*]}"
 }
 if "$preview"; then
-    echo $(argLine) 
+    detail -4 $(argLine) 
 else
     git commit -m "$(argLine)"
 fi
