@@ -3,64 +3,102 @@
 set -euo pipefail
 
 usage() {
-  echo "$(basename "$0") [ flag ] message"
-  documentation=(
-    "-h or --help             : display this message"
-    "-f or --feature          : new features"
-    "-w or --work-in-progress : move stuff around (methods up or down, re-indent, PSR-12 ...)"
-    "-ui or --user-interface  : change user interface"
-    "-b or --bug              : fix bug"
-    "-r or --refacto          : refacto"
-    "-d or --documentation    : update documentation"
-  )
-  echo "Flag list :"
-  printf "  %s\n" "${documentation[@]}"
+    detail -4 "$(basename "$0") [ flag ] message"
+    documentation=(
+        "-h or --help             : display this message"
+        "-f or --feature          : new features"
+        "-w or --work-in-progress : move stuff around (methods up or down, re-indent, PSR-12 ...)"
+        "-u or --user-interface  : change user interface"
+        "-b or --bug              : fix bug"
+        "-r or --refacto          : refacto"
+        "-d or --documentation    : update documentation"
+        "-p or --parser           : change in parser"
+        "-i or --init             : init repository"
+        "" "--preview                : display a preview of the commit"
+    )
+    detail -4 "Flag list :"
+    detail -4 --printf "  %s\n" -- "${documentation[@]}"
 }
 
-type=''
+preview=false
+type+=()
 arguments=()
 while [ "$#" -gt 0 ]; do
-  case "$1" in
-  "-h" | "--help")
-    usage
-    exit
-    ;;
-  "--feature" | "-f")
-    type="sparkles"
-    ;;
-  "--work-in-progress" | "-w")
-    type="construction"
-    ;;
-  "--user-interface" | "-ui")
-    type="lipstick"
-    ;;
-  "--bug" | "-b")
-    type="bug"
-    ;;
-  "--refacto" | "-r")
-    type="art"
-    ;;
-  "--documentation" | "-d")
-    type="pencil"
-    ;;
-  *)
-    arguments+=("$1")
-    ;;
-
-  esac
-  shift
+    case "$1" in
+        "-h" | "--help")
+            usage
+            exit
+        ;;
+        "--feature" | "-f")
+            type+=("sparkles")
+        ;;
+        "--work-in-progress" | "-w")
+            type+=("construction")
+        ;;
+        "--user-interface" | "-u")
+            type+=("lipstick")
+        ;;
+        "--bug" | "-b")
+            type+=("bug")
+        ;;
+        "--refacto" | "-r")
+            type+=("art")
+        ;;
+        "--documentation" | "-d")
+            type+=("pencil")
+        ;;
+        "--init"|"-i")
+            type+=("tada")
+        ;;
+        "--parser"|"-p")
+            type+=("alembic")
+        ;;
+        "--preview")
+            preview=true
+        ;;
+        "--")
+            shift
+            arguments+=("$@")
+            set --
+            break;
+        ;;
+        --*)
+            exitError 4 "Unknown long option $1" 
+        ;;
+        -*)
+            if [ "${#1}" -eq 1 ]; then
+                exitError 5 "Invalid token -"
+            fi
+            if [ "${#1}" -eq 2 ]; then
+                exitError 6 "unknown option $1"
+            fi
+            first=${1:1:1}
+            rest=${1:2}
+            shift
+            set -- -"$first" -"$rest" "$@"
+            continue
+        ;;
+        *)
+            arguments+=("$1")
+        ;;
+    esac
+    shift
 done
 
-if [ -n "$type" ]; then
-  type=":$type: "
+emojis=""
+if [  "${#type[@]}" -gt 0 ]; then
+    emojis="$(printf ":%s:" "${type[@]}")"
 fi
 
 if [ "${#arguments[@]}" -lt 1 ]; then
-  echo "Error: missing arguments" >/dev/stderr
-  usage >/dev/stderr
-  exit 1
+    exitError 1 "Error: missing arguments" "$(usage)"
 fi
 
-
-git commit -m "${type}${arguments[*]}"
-
+argLine(){
+    printf "%s" "${emojis[*]}${arguments[*]}"
+}
+if "$preview"; then
+    detail -4 $(argLine) 
+else
+    git commit -m "$(argLine)"
+fi
