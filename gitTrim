@@ -8,8 +8,6 @@ usage(){
   echo "    lists branches that were deleted from remote"
   echo "    -d deletes branches that were deleted from remote (with no unmerged commits)"
   echo "    -D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
-  echo "    -C target behaves like git's -C"
-
 }
 
 if is_help "$@"; then
@@ -19,7 +17,6 @@ fi
 
 echo "Updating Content ..."
 flag=''
-gitArgs=()
 while test "$#" -gt 0
 do
     case "$1" in
@@ -29,16 +26,11 @@ do
         -D)
             flag=D
             ;;
-        -C)
-            shift
-            gitArgs=("-C" "${1%/}")
-            ;;
-
     esac
     shift
 done
 
-git "${gitArgs[@]}" fetch -p
+git fetch -p
 
 deletedBranches=''
 while read -r branch
@@ -50,9 +42,9 @@ do
     fi
     deletedBranches="$deletedBranches, $branch"
     if [ -n "$flag" ]; then
-        git "${gitArgs[@]}" branch -$flag "$branch"
+        git branch -$flag "$branch" > /dev/null
     fi
-done < <(LANG='' git "${gitArgs[@]}" branch -vv | awk '/: gone/ {print $1}')
+done < <(LANG='' git branch -vv | awk '/: gone/ {print $1}')
 
 if [ -n "$deletedBranches" ]; then
     deletedBranches=${deletedBranches/, }
