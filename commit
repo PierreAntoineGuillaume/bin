@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage() {
-    echo "$(basename "$0") [ flag ] message"
+    detail -4 "$(basename "$0") [ flag ] message"
     documentation=(
         "-h or --help             : display this message"
         "-f or --feature          : new features"
@@ -14,9 +14,10 @@ usage() {
         "-d or --documentation    : update documentation"
         "-p or --parser           : change in parser"
         "-i or --init             : init repository"
+        "" "--preview                : display a preview of the commit"
     )
-    echo "Flag list :"
-    printf "  %s\n" "${documentation[@]}"
+    detail -4 "Flag list :"
+    detail -4 --printf "  %s\n" -- "${documentation[@]}"
 }
 
 preview=false
