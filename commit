@@ -3,64 +3,72 @@
 set -euo pipefail
 
 usage() {
-  echo "$(basename "$0") [ flag ] message"
-  documentation=(
-    "-h or --help             : display this message"
-    "-f or --feature          : new features"
-    "-w or --work-in-progress : move stuff around (methods up or down, re-indent, PSR-12 ...)"
-    "-ui or --user-interface  : change user interface"
-    "-b or --bug              : fix bug"
-    "-r or --refacto          : refacto"
-    "-d or --documentation    : update documentation"
-  )
-  echo "Flag list :"
-  printf "  %s\n" "${documentation[@]}"
+    echo "$(basename "$0") [ flag ] message"
+    documentation=(
+        "-h or --help             : display this message"
+        "-f or --feature          : new features"
+        "-w or --work-in-progress : move stuff around (methods up or down, re-indent, PSR-12 ...)"
+        "-ui or --user-interface  : change user interface"
+        "-b or --bug              : fix bug"
+        "-r or --refacto          : refacto"
+        "-d or --documentation    : update documentation"
+        "-p or --parser           : change in parser"
+        "-i or --init             : init repository"
+    )
+    echo "Flag list :"
+    printf "  %s\n" "${documentation[@]}"
 }
 
 type=''
 arguments=()
 while [ "$#" -gt 0 ]; do
-  case "$1" in
-  "-h" | "--help")
-    usage
-    exit
-    ;;
-  "--feature" | "-f")
-    type="sparkles"
-    ;;
-  "--work-in-progress" | "-w")
-    type="construction"
-    ;;
-  "--user-interface" | "-ui")
-    type="lipstick"
-    ;;
-  "--bug" | "-b")
-    type="bug"
-    ;;
-  "--refacto" | "-r")
-    type="art"
-    ;;
-  "--documentation" | "-d")
-    type="pencil"
-    ;;
-  *)
-    arguments+=("$1")
-    ;;
+    case "$1" in
+        "-h" | "--help")
+            usage
+            exit
+            ;;
+        "--feature" | "-f")
+            type="sparkles"
+            ;;
+        "--work-in-progress" | "-w")
+            type="construction"
+            ;;
+        "--user-interface" | "-ui")
+            type="lipstick"
+            ;;
+        "--bug" | "-b")
+            type="bug"
+            ;;
+        "--refacto" | "-r")
+            type="art"
+            ;;
+        "--documentation" | "-d")
+            type="pencil"
+            ;;
+        "--init"|"-i")
+            type="tada"
+            ;;
+        "--parser"|"-p")
+            type="alembic"
+            ;;
+        *)
+            arguments+=("$1")
+            ;;
 
-  esac
-  shift
-done
+        esac
+        shift
+    done
 
-if [ -n "$type" ]; then
-  type=":$type: "
-fi
+    if [ -n "$type" ]; then
+        type=":$type: "
+    fi
 
-if [ "${#arguments[@]}" -lt 1 ]; then
-  echo "Error: missing arguments" >/dev/stderr
-  usage >/dev/stderr
-  exit 1
-fi
+    if [ "${#arguments[@]}" -lt 1 ]; then
+        echo "Error: missing arguments" >/dev/stderr
+        usage >/dev/stderr
+        exit 1
+    fi
 
 
-git commit -m "${type}${arguments[*]}"
+    git commit -m "${type}${arguments[*]}"
 
