@@ -7,7 +7,7 @@ usage(){
 arguments=()
 
 LOG_LEVEL="${LOG_LEVEL:=4}"
-current=9
+current=4
 do_printf=false
 while [ "$#" -gt 0  ]; do
     case "$1" in
