@@ -1,9 +1,11 @@
 #!/bin/bash
 
 for arg in "$@"; do
-  if [ "$arg" == "-h" ]; then
-    exit 0
-  fi
+    case "$arg" in
+        "--help"|"-h")
+            exit 0
+            ;;
+    esac
 done
 
 exit 1

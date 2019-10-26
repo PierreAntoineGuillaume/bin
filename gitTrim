@@ -4,15 +4,19 @@ set -euo pipefail
 IFS=$'\n\t'
 
 usage(){
-  echo "usage : gitCleanBranches [ -d or -D | -C <directory> ]"
-  echo "    lists branches that were deleted from remote"
-  echo "    -d deletes branches that were deleted from remote (with no unmerged commits)"
-  echo "    -D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
+    detail "usage : $(basename "$0") [ -d or -D | -C <directory> ]"
+    doc=(
+        "lists branches that were deleted from remote"
+        "" "List of flags :"
+        "-d deletes branches that were deleted from remote (with no unmerged commits)"
+        "-D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
+    )
+    detail --printf -- "  %s\n" "${doc[@]}"
 }
 
 if is_help "$@"; then
-  usage
-  exit
+    usage
+    exit
 fi
 
 echo "Updating Content ..."
