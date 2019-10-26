@@ -37,7 +37,7 @@ fi
 
 actuallyFetch() {
     IFS=' '
-    printf "Calling git ${action[*]} on $1"
+    detail -5 "Calling git ${action[*]} on $1"
     # shellcheck disable=SC2086
     git -C "$1" ${action[*]}
 }
