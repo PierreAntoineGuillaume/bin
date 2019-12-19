@@ -31,4 +31,4 @@ fi
 type="$1"
 shift
 
-find "$PWD" -name "*.$type" -type f "$@"
+find "." -name "*.$type" -type f "$@"
