@@ -4,10 +4,11 @@ set -euo pipefail
 IFS=$'\n\t'
 
 usage(){
-    detail "usage : $(basename "$0") [ -d or -D | -C <directory> ]"
+    detail "usage : $(basename "$0") [ -d or -D ]"
     doc=(
         "lists branches that were deleted from remote"
         "" "List of flags :"
+        "-h | --help displays help"
         "-d deletes branches that were deleted from remote (with no unmerged commits)"
         "-D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
     )
