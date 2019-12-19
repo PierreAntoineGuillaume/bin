@@ -14,16 +14,14 @@ usage(){
     detail --printf -- "  %s\n" "${doc[@]}"
 }
 
-if is_help "$@"; then
-    usage
-    exit
-fi
-
-echo "Updating Content ..."
 flag=''
 while test "$#" -gt 0
 do
     case "$1" in
+        "-h"|"--help")
+            usage
+            exit
+            ;;
         -d)
             flag=d
             ;;
@@ -34,7 +32,9 @@ do
     shift
 done
 
-git fetch -p
+echo "Updating Content ..."
+
+git fetch -p > /dev/null
 
 deletedBranches=''
 while read -r branch
