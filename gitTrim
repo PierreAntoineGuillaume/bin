@@ -33,7 +33,7 @@ do
     shift
 done
 
-echo "Updating Content ..."
+detail -4 "Updating Content ..."
 
 git fetch -p > /dev/null
 
@@ -42,7 +42,7 @@ while read -r branch
 do
     if [ "$branch" = "*" ];
     then
-        echo "Warning: Your current local branch is deleted on remote." >&2
+        detail -3 "Warning: Your current local branch is deleted on remote." >&2
         continue
     fi
     deletedBranches="$deletedBranches, $branch"
@@ -54,10 +54,10 @@ done < <(LANG='' git branch -vv | awk '/: gone/ {print $1}')
 if [ -n "$deletedBranches" ]; then
     deletedBranches=${deletedBranches/, }
     if [ -z "$flag" ]; then
-        echo "Branches to be trimmed : $deletedBranches"
+        detail -4 "Branches to be trimmed : $deletedBranches"
     else
-        echo "Trimed branches : $deletedBranches"
+        detail -4 "Trimed branches : $deletedBranches"
     fi
 else
-    echo "No branches to trim"
+    detail -4 "No branches to trim"
 fi
