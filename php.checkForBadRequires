@@ -1,0 +1,88 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage(){
+    detail -3 "Usage : $(basename "$0") <php file>"
+}
+
+arguments=()
+while [ "$#" -gt 0  ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        --)
+            shift
+            arguments+=("$@")
+            set --
+            break;
+            ;;
+        --*)
+            echo "Unknown long option $1" >&2
+            exit 3
+            ;;
+        -*)
+            if [ "${#1}" -eq 1 ]; then
+                echo "Invalid token -" >&2
+                exit 1
+            fi
+            if [ "${#1}" -eq 2 ]; then
+                echo "unknown option $1" >&2
+                exit 2
+            fi
+            first=${1:1:1}
+            rest=${1:2}
+            shift
+            set -- -"$first" -"$rest" "$@"
+            continue
+            ;;
+        *)
+            arguments+=("$1")
+            ;;
+    esac
+    shift
+done
+
+set -- "${arguments[@]}"
+
+if [ "$#" -lt 1 ]; then
+    exitError 1 "Missing filename"
+fi
+
+file="$1"
+
+if [ ! -f "$file" ]; then
+    exitError 2 "Not a file $file";
+fi
+
+if [ ! which cleanPhp >&2 2> /dev/null ]; then
+    exitError 3 "Missing cleanPhp executable"
+fi
+
+dirname=$(dirname "$file")
+dirname=${dirname%%/}
+cd $dirname
+
+basefile="$(basename $file)"
+
+mapfile -t content < <(cleanPhp "$basefile" \
+    | grep -oE "require_once\s+__DIR__[^;]+" \
+    | grep -v '\$'
+)
+
+bad=("In $PWD/$basefile :")
+for instruction in "${content[@]}"
+do
+    trimed=${instruction%%\"}
+    trimed=${instruction%%\'}
+    lookFor=$(echo "$trimed" | sed -re "s#^.*__DIR__\s*\.\s*.##")
+    if [ ! -f "$PWD$lookFor" ]; then
+        bad+=("  could not resolve $PWD$lookFor from $instruction")
+    fi
+done
+
+if [ "${#bad[@]}" -gt 1 ]; then
+    printf "%s\n" "${bad[@]}"
+fi
