@@ -1,0 +1,31 @@
+#!/bin/bash
+
+strings=(
+  "tools/update_server.php:60:    class update_server {"
+  "classPIGE/class.import_TA.php:6:class Import_TA extends Importeur_PIGE {"
+  "classPIGE/class.lecture_tel.php:4:class reconnaissance_image_tel {"
+  "classStat/class.explorimmo.php:5:class Maj_statistiques_explorimmo extends Majils {"
+)
+
+results=(
+  "'update_server' => 'tools/update_server.php',"
+  "'Import_TA' => 'classPIGE/class.import_TA.php',"
+  "'reconnaissance_image_tel' => 'classPIGE/class.lecture_tel.php',"
+  "'Maj_statistiques_explorimmo' => 'classStat/class.explorimmo.php',"
+)
+
+errors=0
+for ((i = 0; i < "${#strings[@]}"; ++i)); do
+  step=$(echo "${strings[$i]}" | php.makeClassHierarchyPipeline)
+  if [ ! "$step" = "${results[$i]}" ]; then
+    printf "Error for %-90s : %s\n" "${strings[$i]}" "$step" >&2
+    errors=$((errors + 1))
+  fi
+done
+
+if [ "$errors" -eq 0 ]; then
+  echo "Success"
+else
+  echo "Failure" >&2
+  exit 1
+fi
