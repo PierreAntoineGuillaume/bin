@@ -5,6 +5,10 @@ strings=(
   "classPIGE/class.import_TA.php:6:class Import_TA extends Importeur_PIGE {"
   "classPIGE/class.lecture_tel.php:4:class reconnaissance_image_tel {"
   "classStat/class.explorimmo.php:5:class Maj_statistiques_explorimmo extends Majils {"
+  "classBD/class.meta_tags.php:4:class Meta_tags{"
+  "interface/interface.ienregistrable_formulaire.php:3:interface Ienregistrable_formulaire{"
+  "parametres/BaremeHonoraires.php:5:class BaremeHonoraires"
+  "_traqueur.php:2:class _traqueur{"
 )
 
 results=(
@@ -12,6 +16,10 @@ results=(
   "'Import_TA' => 'classPIGE/class.import_TA.php',"
   "'reconnaissance_image_tel' => 'classPIGE/class.lecture_tel.php',"
   "'Maj_statistiques_explorimmo' => 'classStat/class.explorimmo.php',"
+  "'Meta_tags' => 'classBD/class.meta_tags.php',"
+  "'Ienregistrable_formulaire' => 'interface/interface.ienregistrable_formulaire.php',"
+  "'BaremeHonoraires' => 'parametres/BaremeHonoraires.php',"
+  "'_traqueur' => '_traqueur.php',"
 )
 
 errors=0

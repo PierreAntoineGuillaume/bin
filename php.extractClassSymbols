@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+usage() {
+  detail "usage : $(basename "$0") [ --filter expression ]"
+  doc=(
+    "echoes a list of class with their"
+    "" "List of flags :"
+    "-h | --help displays help"
+    "--filter expression removes expression from results"
+  )
+  detail --printf -- "  %s\n" "${doc[@]}"
+}
+
+filters=()
+while test "$#" -gt 0; do
+  case "$1" in
+  "-h" | "--help")
+    usage
+    exit
+    ;;
+  --filter)
+    shift
+    if [ "$#" -lt 1 ]; then
+      exitError 1 "Missing argument for filter"
+    fi
+    filters+=("$1")
+    ;;
+  esac
+  shift
+done
+
+filter='$^'
+if [ "${#filters[@]}" -gt 0 ]; then
+  filter=$(printf "|(%s)" "${filters[@]}")
+  filter=${filter:1}
+fi
+
+mapfile -t lines < <(find . -name "*.php" -exec ag "^\s*(interface|(abstract )?class|trait)" {} '+' | grep -vE "lib|vendor" | php.makeClassHierarchyPipeline | sort -u | uniq | grep -viE "$filter")
+
+symbols=()
+
+for line in "${lines[@]}"; do
+  symbol=${line:1}
+  symbol=${symbol%%\'*}
+  symbols+=("$symbol")
+done
+
+mapfile -t duplicates < <(printf "%s\n" "${symbols[@]}" | uniq -c | sed -re '/\b1\b/d' -re 's#^\s+[0-9]+\s+##g')
+
+printf "Duplicate found: %s\n" "${duplicates[@]}" >&2
+
+echo "<?php"
+echo "# filtered : $filter"
+echo "return ["
+printf "  %s\n" "${lines[@]}"
+echo "];"
