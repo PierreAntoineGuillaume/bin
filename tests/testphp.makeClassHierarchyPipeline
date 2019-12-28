@@ -2,16 +2,22 @@
 
 strings=(
   "tools/update_server.php:60:    class update_server {"
-  "classPIGE/class.import_TA.php:6:class Import_TA extends Importeur_PIGE {"
-  "classPIGE/class.lecture_tel.php:4:class reconnaissance_image_tel {"
-  "classStat/class.explorimmo.php:5:class Maj_statistiques_explorimmo extends Majils {"
+  "classAAAA/class.import_TA.php:6:class Import_TA extends Importeur_AAAA {"
+  "classAAAA/class.lecture_tel.php:4:class reconnaissance_image_tel {"
+  "classStat/class.mydata.php:5:class Maj_statistiques_mydata extends BBBB {"
+  "classBD/class.meta_tags.php:4:class Meta_tags{"
+  "interface/interface.ienregistrable_formulaire.php:3:interface Ienregistrable_formulaire{"
+  "parametres/NOMGENERIQUE.php:5:class NOMGENERIQUE"
 )
 
 results=(
   "'update_server' => 'tools/update_server.php',"
-  "'Import_TA' => 'classPIGE/class.import_TA.php',"
-  "'reconnaissance_image_tel' => 'classPIGE/class.lecture_tel.php',"
-  "'Maj_statistiques_explorimmo' => 'classStat/class.explorimmo.php',"
+  "'Import_TA' => 'classAAAA/class.import_TA.php',"
+  "'reconnaissance_image_tel' => 'classAAAA/class.lecture_tel.php',"
+  "'Maj_statistiques_mydata' => 'classStat/class.mydata.php',"
+  "'Meta_tags' => 'classBD/class.meta_tags.php',"
+  "'Ienregistrable_formulaire' => 'interface/interface.ienregistrable_formulaire.php',"
+  "'NOMGENERIQUE' => 'parametres/NOMGENERIQUE.php',"
 )
 
 errors=0
