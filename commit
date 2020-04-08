@@ -95,7 +95,7 @@ if [ "${#arguments[@]}" -lt 1 ]; then
 fi
 
 argLine(){
-    printf "%s" "${emojis[*]}${arguments[*]}"
+    printf "%s" "${emojis[*]} ${arguments[*]}"
 }
 if "$preview"; then
     detail -4 $(argLine) 
