@@ -1,4 +1,16 @@
 #!/bin/bash
 
-find "$1" -type d -exec mkdir -p "$2"/{} ';'
-find "$1" -type f -exec mv {,"$2"}/{} ';'
+target="${@: -1}"
+
+array=( "$@" )
+unset "array[${#array[@]}-1]"
+
+set -- "${array[@]}"
+
+target=${target%/}
+
+while [ "$#" -gt 0 ]; do
+    find "$1" -type d -exec mkdir -p "$second/"{} ';'
+    find "$1" -type f -exec mv -n {,"$second/"}{} ';'
+    shift
+done
