@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 target="${@: -1}"
 
 array=( "$@" )
@@ -10,7 +12,8 @@ set -- "${array[@]}"
 target=${target%/}
 
 while [ "$#" -gt 0 ]; do
-    find "$1" -type d -exec mkdir -p "$second/"{} ';'
-    find "$1" -type f -exec mv -n {,"$second/"}{} ';'
+    find "$1" -type d -exec mkdir -p "$target/"{} ';'
+    find "$1" -type f -exec mv -n {,"$target/"}{} ';'
+    find "$1" -type d -empty -delete
     shift
 done
