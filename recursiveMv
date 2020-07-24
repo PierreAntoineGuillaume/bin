@@ -1,0 +1,4 @@
+#!/bin/bash
+
+find "$1" -type d -exec mkdir -p "$1"/{}
+find "$1" -type f -exec mv {,"$1"}/{}
