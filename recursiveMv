@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-target="${@: -1}"
+target="${*: -1}"
 
 array=( "$@" )
 unset "array[${#array[@]}-1]"
