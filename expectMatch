@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -euo pipefail
+
+args=()
+replaceNewLinesWith=
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  --replaceNewLinesWith)
+    shift
+    replaceNewLinesWith=$1
+    ;;
+  *)
+    args+=("$1")
+    ;;
+  esac
+  shift
+done
+
+set -- "${args[@]}"
+
+if [ -n "$replaceNewLinesWith" ]; then
+  content=$(tr $'\n' "$replaceNewLinesWith" </dev/stdin)
+else
+  content=$(cat /dev/stdin)
+fi
+if ! grep -q "$@" <<<"$content"; then
+  echo "could not grep $1 from «$content»" >&2
+  exit 1
+fi

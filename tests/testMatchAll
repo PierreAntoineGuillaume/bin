@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -euo pipefail
+
+matchAll "^[a-z]{4}$" "i$" <dataMatchAll.txt | expectMatch titi
+
+matchList=("^[a-z]{4}$" "u$")
+matchAll "${matchList[@]}" <dataMatchAll.txt | expectMatch "tutu"
+
+matchList=()
+matchAll "${matchList[@]}" <dataMatchAll.txt | expectMatch --replaceNewLinesWith '_' "toto_titi_tutu_ti"

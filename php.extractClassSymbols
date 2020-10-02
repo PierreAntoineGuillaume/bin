@@ -10,11 +10,13 @@ usage() {
     "" "List of flags :"
     "-h | --help displays help"
     "--filter expression removes expression from results"
+    "--only expression removes not matching from results"
   )
   detail --printf -- "  %s\n" "${doc[@]}"
 }
 
 filters=()
+only=()
 while test "$#" -gt 0; do
   case "$1" in
   "-h" | "--help")
@@ -28,6 +30,13 @@ while test "$#" -gt 0; do
     fi
     filters+=("$1")
     ;;
+  --only)
+    shift
+    if [ "$#" -lt 1 ]; then
+      exitError 1 "Missing argument for only"
+    fi
+    only+=("$1")
+    ;;
   esac
   shift
 done
@@ -38,7 +47,12 @@ if [ "${#filters[@]}" -gt 0 ]; then
   filter=${filter:1}
 fi
 
-mapfile -t lines < <(find . -name "*.php" -exec ag "^\s*(interface|(abstract )?class|trait)" {} '+' | grep -vE "lib|vendor" | php.makeClassHierarchyPipeline | sort -u | uniq | grep -viE "$filter")
+mapfile -t lines < <(\
+      find . -name "*.php" -exec ag "^\s*(interface|(abstract )?class|trait)" {} '+' \
+        | grep -vE "lib|vendor" \
+        | php.makeClassHierarchyPipeline | sort -u | uniq | grep -viE "$filter" \
+        | matchAll "${only[@]}"
+      )
 
 symbols=()
 

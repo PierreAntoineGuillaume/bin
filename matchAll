@@ -1,0 +1,10 @@
+#!/bin/bash
+
+while read -r line || [ -n "$line" ]; do
+  for regex in "$@"; do
+    if ! grep -qiE "$regex" <<< "$line"; then
+      continue 2
+    fi
+  done
+  echo "$line"
+done
