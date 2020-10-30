@@ -2,18 +2,81 @@
 
 set -euo pipefail
 
+
+args=()
+skip=(. ..)
+create=false
+report(){
+    :
+}
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --verbose)
+            report() {
+                echo "$@"
+            }
+            shift
+            ;;
+        --skip)
+            shift
+            skip+=("${1%/}")
+            shift
+            ;;
+        --mkdir)
+            create=true
+            shift
+            ;;
+        --*)
+            echo "error : unknown option $1" >&2
+            exit 1
+            ;;
+        --)
+            shift
+            while [ "$#" -gt 0 ]; do
+                args+=("${1%/}")
+                shift
+            done
+            ;;
+        *)
+            args+=("${1%/}")
+            shift
+            ;;
+    esac
+done
+
+containsElement () {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
+set -- "${args[@]}"
+
 target="${*: -1}"
+skip+=("$target")
+if "$create"; then
+    mkdir -p "$target"
+fi
 
 array=( "$@" )
 unset "array[${#array[@]}-1]"
-
 set -- "${array[@]}"
 
-target=${target%/}
-
 while [ "$#" -gt 0 ]; do
-    find "$1" -type d -exec mkdir -p "$target/"{} ';'
-    find "$1" -type f -exec mv -n {,"$target/"}{} ';'
-    find "$1" -type d -empty -delete
+    if containsElement "$1" "${skip[@]}"; then
+        report "Skipping moving $1 to $target"
+        shift
+        continue;
+    fi
+    if [[ -d "$1" ]]; then
+        report "Moving folder $1 to $target"
+        find "$1" -type d -exec mkdir -p "$target/"{} ';'
+        find "$1" -type f -exec mv -n {,"$target/"}{} ';'
+        find "$1" -type d -empty -delete
+    else
+        report "Moving single file $1 to $target"
+        mv "$1" "$target"
+    fi
     shift
 done
