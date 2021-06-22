@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+doCurl() {
+    URI=/${1/\/}
+    shift
+    curl --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "https://gitlab.com$URI" "$@"
+}
+
+while (( "$#" )); do
+    case "$1" in
+        "add-ssh-key")
+            ;;
+    esac
+    shift
+done

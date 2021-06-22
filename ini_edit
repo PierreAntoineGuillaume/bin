@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+  printf -- "%s : usage : %s source-ini key1 key2 -p regex-key key 3" "$0" "$0"
+}
+
+regexs=()
+args=()
+list=()
+dryRun=false
+while (("$#")); do
+  case "$1" in
+  -p | --regex | --perl-regex)
+    shift
+    regexs+=("$1")
+    ;;
+  -n | --dry-run)
+    dryRun=true
+    ;;
+  --help | -h)
+    usage
+    exit 0
+    ;;
+  --)
+    shift
+    args+=("$@")
+    ;;
+  *)
+    args+=("$1")
+    ;;
+  esac
+  shift
+done
+
+set -- "${args[@]}"
+
+source=$1
+shift
+dest=$1
+shift
+
+if test "$#" -gt 0; then
+  list+=("$@")
+fi
+
+for regex in "${regexs[@]}"; do
+  mapfile -t newKeys < <(grep -Po -- "[^=]*${regex}[^=]*=" "$dest")
+  for newKey in "${newKeys[@]}"; do
+    list+=("${newKey%=}")
+  done
+done
+
+
+if $dryRun; then
+  useSed="echo sed"
+else
+  useSed="sed"
+fi
+
+for seditem in "${list[@]}"; do
+  $useSed -r "s#${seditem}=.*#$(grep -E -- "${seditem}=" "$source" | sed 's/#/\#/')#" -i "$dest"
+done

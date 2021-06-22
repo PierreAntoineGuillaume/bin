@@ -47,18 +47,19 @@ if [ "${#filters[@]}" -gt 0 ]; then
   filter=${filter:1}
 fi
 
+
+
 mapfile -t lines < <(
-  find . -name "*.php" -exec ag "^\s*(interface|(abstract )?class|trait)" {} '+' |
-    grep -vE "lib|vendor" |
-    php.makeClassHierarchyPipeline | sort -u | uniq | grep -viE "$filter" |
+  find . -name "*.php" -exec ag "^[ \t]*\b(interface|(abstract )?class|trait)\b" {} '+' |
+    grep -vP "\b(lib|vendor)\b" |
+    php.makeClassHierarchyPipeline | sort -u | uniq | grep -viP "$filter" |
     matchAll "${only[@]}"
 )
 
 symbols=()
 
 for line in "${lines[@]}"; do
-  symbol=${line:1}
-  symbol=${symbol%%\'*}
+  symbol=${lines%%\'*}
   symbols+=("$symbol")
 done
 

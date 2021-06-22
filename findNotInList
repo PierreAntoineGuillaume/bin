@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+filename=$1
+shift
+
+mapfile -t file_list
+
+containsElement () {
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done
+    return 1
+}
+
+missingFiles=()
+while (( $# )); do
+    if ! containsElement $1 "${file_list[@]}"; then
+        missingFiles+=("$1")
+    fi
+    shift
+done
+
+if [ "${#missingFiles[@]}" -gt 0 ]; then
+    printf "%s\n" "${missingFiles[@]}"
+fi

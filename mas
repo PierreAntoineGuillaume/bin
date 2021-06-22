@@ -2,23 +2,35 @@
 
 set -euo pipefail
 
-if ! requireArgs 1;then
-    echo "Error, Usage : $0 new_file_name" >> /dev/stderr
+usage() {
+    echo "Usage: $0 filename"
+}
+
+if [ "$#" -lt 1 ]; then
+    >&2 echo "Error: bad arguments"
+    >&2 usage
+    exit 1;
 fi
+
+if [ "$1" == "-h" -o "$1" == "--help" ]; then
+    usage
+fi
+
 
 file="$1"
 
+mkdir -p -- "$(dirname -- "$file")"
 
-ensureNotExists () {
-    if test -f $file
-    then
-        echo "File already exists «${file}»"
-        exit 1;
-    fi
-}
+if ! [ -f "$file" ]
+then
+    echo '#!/usr/bin/env bash' >> "$file";
+fi
 
-ensureNotExists
+if ! [ -x "$file" ]; then
+    chmod a+x "$file"
+fi
 
-echo '#!/bin/bash' >> "$file";
-chmod +x "$file";
-editor "$file"
+set +e
+2>/dev/null git -C "$(dirname "$1")" add "$(basename "$1")"
+
+editor -- "$file"

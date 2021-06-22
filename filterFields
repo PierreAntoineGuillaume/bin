@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mapfile -t list < <(grep -oP "\b$1\.[^ ]+\b" | sed 's#`##' | sed 's#^'"${1}"'\.##'  | sort -u)
+
+printf "'%s',\n" "${list[@]}"

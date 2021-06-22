@@ -38,7 +38,7 @@ log () {
 log starting synchronization
 
 rsyncWrap(){
-    timeout 20 rsync -auzq --delete --exclude-from="$rsyncignore" "$source" "$target"
+    rsync -auzq --delete --exclude-from="$rsyncignore" "$source" "$target"
     retour=$?
     if ! test $retour -eq 0; then
         log Erreur dans le retour de rsync: $retour

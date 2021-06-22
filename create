@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -uo pipefail
+
+while (( $# )); do
+    set -e
+    mkdir -p "$(dirname "$1")"
+    touch "$1"
+
+    set +e
+    2>/dev/null git -C "$(dirname "$1")" add "$(basename "$1")"
+    shift
+done
