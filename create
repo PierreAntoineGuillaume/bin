@@ -2,11 +2,23 @@
 
 set -uo pipefail
 
+executable=false;
+
 while (( $# )); do
     set -e
+    if [ "$1" = "-x" ]; then
+        executable=true
+        shift
+        continue
+    fi
     mkdir -p "$(dirname "$1")"
-    touch "$1"
-
+    if "$executable"; then
+        printf "%s\n" "#!/usr/bin/env bash" "" "set -euox pipefail" >> "$1"
+        chmod a+x "$1"
+        executable=false
+    else
+        touch "$1"
+    fi
     set +e
     2>/dev/null git -C "$(dirname "$1")" add "$(basename "$1")"
     shift
