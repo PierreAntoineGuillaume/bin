@@ -1,0 +1,16 @@
+[core]
+	excludesFile = ~/.gitignore
+	autocrlf = input
+[alias]
+	trim = !gitTrim
+	list-unwatched = !git ls-files -v | grep "^S" | sed 's/^S //'
+	unwatch = ! git update-index --skip-worktree "$@"
+	rewatch = ! git update-index --no-skip-worktree "$@"
+	prepare = ! git reset && git commit --allow-empty "$@"
+	please = push --force-with-lease
+	s = status --short
+	l = log --oneline
+	last-sha = ! gitLastSha
+	autorebase = ! git rebase -i "$(git last-sha)"
+[rerere]
+	enabled = true
