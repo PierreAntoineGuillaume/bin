@@ -1,29 +1,84 @@
 #!/bin/bash
 
-set -uo pipefail
+set -euo pipefail
 
-executable=false;
+usage() {
+  echo
+  echo "Usage $(basename $0)"
+  echo
+  echo "  -h --help   display this help"
+  echo "  -x          flag next flag as executable"
+  echo
+}
+
+
+
+flat=()
+executables=()
+all=()
 
 while (( $# )); do
-    set -e
-    if [ "$1" = "-x" ]; then
-        executable=true
-        shift
-        continue
-    elif [ "$1" = "+x" ]; then
-        executable=false
-        shift
-        continue
-    fi
-    mkdir -p "$(dirname "$1")"
-    if "$executable"; then
-        printf "%s\n" "#!/usr/bin/env bash" "" "set -euox pipefail" >> "$1"
-        chmod a+x "$1"
-    else
-        touch "$1"
-    fi
-    set +e
-    tee -a "$1" >/dev/null
-    2>/dev/null git -C "$(dirname "$1")" add "$(basename "$1")"
-    shift
+  case "$1" in
+    --help|-h)
+      usage
+      exit
+      ;;
+    -x)
+      shift
+      executables+=("$1")
+      all+=("$1")
+      shift
+      ;;
+    --)
+      shift
+      all+=("$@")
+      shift $#
+      ;;
+    -*)
+      >&2 echo "Unknown flag $1"
+      exit 1
+      ;;
+    *)
+      all+=("$1")
+      shift
+      ;;
+  esac
 done
+
+
+content=$'\n'
+if test ! -t 0; then
+  content=$(cat -)
+fi
+
+dirsToCreate=()
+for file in "${all[@]}"; do
+  dir=$(dirname "$file")
+  if ! [ -d "$dir" ]; then
+    dirsToCreate+=("$dir")
+  fi
+done
+if [ "${#dirsToCreate[@]}" -gt 0 ]; then
+  {
+    printf "Creating folders ["
+    printf "%s " "${dirsToCreate[@]}"
+    printf "]\n"
+  } >&2
+  mkdir -p "${dirsToCreate[@]}"
+fi
+
+for file in "${executables[@]}"; do
+  printf "%s\n" "#!/usr/bin/env bash" "" "set -euo pipefail" >> "$file"
+  chmod a+x "$file"
+done
+
+for file in "${all[@]}"; do
+  echo "$content" >> "$file"
+done
+
+set +e
+
+for file in "${all[@]}"; do
+  2>/dev/null git -C "$(dirname "$file")" add "$(basename "$file")"
+done
+
