@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+args=()
+
+user="--user $(id -u):$(id -g)"
+
+while (( $# )); do
+  case "$1" in
+    --root)
+      user=
+      ;;
+    *)
+      args+=("$1")
+      ;;
+  esac
+  shift
+done
+
+set -- "${args[@]}"
+
+docker run --rm -it $user -v "$PWD:$PWD" -v "/etc/localtime:/etc/localtime:ro" -v "/etc/timezone:/etc/timezone:ro" --workdir "$PWD" "$@"
