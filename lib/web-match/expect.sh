@@ -2,10 +2,11 @@
 
 set -euo pipefail
 
-function expect () {
+function do-expect () {
   page=${1}
   shift
   code=
+  not_code=
   connection=
   args=()
   while (( $# )); do
@@ -14,6 +15,10 @@ function expect () {
           code=$2
           shift
       ;;
+      to-not-be)
+          not_code=$2
+          shift
+          ;;
       with-connection)
           connection=$2
           shift
@@ -28,19 +33,26 @@ function expect () {
 
   CURL=${CURL:-curl}
 
-  parse-header "$code" < <($CURL --no-progress-meter --head "$page")
+  if [ -n "$connection" ]; then
+      parse-header "$code" "$not_code" < <($CURL --no-progress-meter --head "$page" --cookie "PHPSESSID=$connection")
+  else
+    parse-header "$code" "$not_code" < <($CURL --no-progress-meter --head "$page")
+  fi
+
   return $?
 }
 
 function parse-header() {
   expectedCode=$1
+  expectedNotCode=$2
   actualCode=$(awk 'NR==1 { print $2 }')
 
   if [ -n "$expectedCode" ] && [ "$expectedCode" != "$actualCode" ]; then
     return 1;
   fi
 
+  if [ -n "$expectedNotCode" ] && [ "$expectedNotCode" == "$actualCode" ]; then
+    return 1;
+  fi
   return 0
 }
-
-expect https://www.google.com to-be 200
