@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+function expect () {
+  page=${1}
+  shift
+  code=
+  connection=
+  args=()
+  while (( $# )); do
+    case "$1" in
+      to-be)
+          code=$2
+          shift
+      ;;
+      with-connection)
+          connection=$2
+          shift
+      ;;
+      *)
+        args+=("$1")
+      ;;
+    esac
+    shift
+  done
+  set -- "${args[@]}"
+
+  CURL=${CURL:-curl}
+
+  parse-header "$code" < <($CURL --no-progress-meter --head "$page")
+  return $?
+}
+
+function parse-header() {
+  expectedCode=$1
+  actualCode=$(awk 'NR==1 { print $2 }')
+
+  if [ -n "$expectedCode" ] && [ "$expectedCode" != "$actualCode" ]; then
+    return 1;
+  fi
+
+  return 0
+}
+
+expect https://www.google.com to-be 200

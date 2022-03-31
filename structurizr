@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+docker run -it --rm --user "$(id -u):$(id -g)" --workdir "$PWD" -v "$PWD:$PWD" structurizr/cli "$@"
+
