@@ -7,7 +7,7 @@ function do-expect () {
   shift
   code=
   not_code=
-  connection=
+  cookie=()
   args=()
   while (( $# )); do
     case "$1" in
@@ -19,8 +19,8 @@ function do-expect () {
           not_code=$2
           shift
           ;;
-      with-connection)
-          connection=$2
+      with-cookie)
+        cookie+=("--cookie" "$2")
           shift
       ;;
       *)
@@ -33,11 +33,8 @@ function do-expect () {
 
   CURL=${CURL:-curl}
 
-  if [ -n "$connection" ]; then
-      parse-header "$code" "$not_code" < <($CURL --no-progress-meter --head "$page" --cookie "PHPSESSID=$connection")
-  else
-    parse-header "$code" "$not_code" < <($CURL --no-progress-meter --head "$page")
-  fi
+
+  parse-header "$code" "$not_code" < <($CURL --no-progress-meter --head "$page" "${cookie[@]}")
 
   return $?
 }
