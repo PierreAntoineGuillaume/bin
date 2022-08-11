@@ -3,11 +3,15 @@
 args=()
 
 user="--user $(id -u):$(id -g)"
+docker=
 
 while (( $# )); do
   case "$1" in
     --root)
       user=
+      ;;
+    --docker)
+      docker="-v /var/run/docker.sock:/var/run/docker.sock"
       ;;
     *)
       args+=("$1")
@@ -18,4 +22,4 @@ done
 
 set -- "${args[@]}"
 
-docker run --rm -it $user -v "$PWD:$PWD" -v "/etc/localtime:/etc/localtime:ro" -v "/etc/timezone:/etc/timezone:ro" --workdir "$PWD" "$@"
+docker run --rm -it $user -v "$PWD:$PWD" -v "/etc/localtime:/etc/localtime:ro" -v "/etc/passwd:/etc/passwd:ro" -v "/etc/timezone:/etc/timezone:ro" $docker --workdir "$PWD" "$@"
