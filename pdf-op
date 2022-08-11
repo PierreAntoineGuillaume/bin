@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+while (( $# )); do
+  case $1 in
+    "compress")
+      gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=/dev/stdout "$1"
+      exit 0
+    ;;
+    *)
+      >&2 echo "No such command $1";
+      exit 1
+      ;;
+  esac
+  shift
+done
