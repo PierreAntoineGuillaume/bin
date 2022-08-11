@@ -19,6 +19,12 @@ while (( $# )); do
       gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=/dev/stdout -dBATCH "$@"
       exit 0
     ;;
+    "split")
+      shift
+      # https://stackoverflow.com/questions/10228592/splitting-a-pdf-with-ghostscript
+      gs -dNOPAUSE -dQUIET -dBATCH -sOutputFile="/dev/stdout" -dFirstPage="$2" -dLastPage="$3" -sDEVICE=pdfwrite "$1"
+      exit 0
+    ;;
     *)
       >&2 echo "No such command $1";
       exit 1
