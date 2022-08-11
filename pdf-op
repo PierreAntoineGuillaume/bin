@@ -2,14 +2,19 @@
 
 set -euo pipefail
 
+
+
 while (( $# )); do
+
   case $1 in
     "compress")
+      shift
       # see https://askubuntu.com/questions/113544/how-can-i-reduce-the-file-size-of-a-scanned-pdf-file
       gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=/dev/stdout "$1"
       exit 0
     ;;
     "merge")
+      shift
       # see https://gist.github.com/brenopolanski/2ae13095ed7e865b60f5
       gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=/dev/stdout -dBATCH "$@"
       exit 0
@@ -19,5 +24,4 @@ while (( $# )); do
       exit 1
       ;;
   esac
-  shift
 done
