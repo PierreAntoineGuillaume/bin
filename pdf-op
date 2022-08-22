@@ -19,10 +19,14 @@ while (( $# )); do
       gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=/dev/stdout -dBATCH "$@"
       exit 0
     ;;
-    "split")
+    "split"|"slice")
       shift
+      target=$4
+      if [ "$target" = '-' ]; then
+        target=/dev/stdout  
+      fi
       # https://stackoverflow.com/questions/10228592/splitting-a-pdf-with-ghostscript
-      gs -dNOPAUSE -dQUIET -dBATCH -sOutputFile="/dev/stdout" -dFirstPage="$2" -dLastPage="$3" -sDEVICE=pdfwrite "$1"
+      gs -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$4" -dFirstPage="$2" -dLastPage="$3" -sDEVICE=pdfwrite "$1"
       exit 0
     ;;
     *)
