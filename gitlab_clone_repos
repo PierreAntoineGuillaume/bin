@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+WORKSPACE=${WORKSPACE:-}
+
+if [ -n "$WORKSPACE" ]; then
+    WORKSPACE=${WORKSPACE%/}/
+fi
+
+while read -r path ssh
+do
+    git clone "${ssh}" "${WORKSPACE}${path}"
+done

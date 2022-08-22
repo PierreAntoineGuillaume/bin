@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+command -v curl > /dev/null
+command -v jq > /dev/null
+
+GITLAB_HOST=${GITLAB_HOST:-gitlab.com}
+GITLAB_GROUP=$1
+GITLAB_TOKEN=${GITLAB_TOKEN:-}
+
+parseContent () {
+    jq -r '.[] | [ .path_with_namespace, .ssh_url_to_repo ] | @tsv'
+} 
+
+page=1
+
+while true; do
+    url="https://${GITLAB_HOST}/api/v4/groups/$GITLAB_GROUP/projects?include_subgroups=true&page=$page&archived=false"
+    req=$(curl -s --header "PRIVATE-TOKEN: $GITLAB_TOKEN" "$url")
+    if [ "$req" == "[]" ]; then
+        exit 0;
+    fi
+    ((page+=1))
+    parseContent <<<"$req"
+done
