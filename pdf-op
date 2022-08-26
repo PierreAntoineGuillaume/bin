@@ -10,7 +10,15 @@ while (( $# )); do
     "compress")
       shift
       # see https://askubuntu.com/questions/113544/how-can-i-reduce-the-file-size-of-a-scanned-pdf-file
-      gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile=/dev/stdout "$1"
+      input=$1
+      if [ "$input" = '-' ]; then
+        input=/dev/stdin
+      fi
+      target=$2
+      if [ "$target" = '-' ]; then
+        target=/dev/stdout
+      fi
+      gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$target" "$input"
       exit 0
     ;;
     "merge")
@@ -21,12 +29,16 @@ while (( $# )); do
     ;;
     "split"|"slice")
       shift
+      input=$1
+      if [ "$input" = '-' ]; then
+        input=/dev/stdin
+      fi
       target=$4
       if [ "$target" = '-' ]; then
-        target=/dev/stdout  
+        target=/dev/stdout
       fi
       # https://stackoverflow.com/questions/10228592/splitting-a-pdf-with-ghostscript
-      gs -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$4" -dFirstPage="$2" -dLastPage="$3" -sDEVICE=pdfwrite "$1"
+      gs -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$target" -dFirstPage="$2" -dLastPage="$3" -sDEVICE=pdfwrite "$input"
       exit 0
     ;;
     *)

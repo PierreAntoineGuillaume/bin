@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+config=.commitlintrc
+
+args=()
+
+if [ -f "$config" ]; then
+    args+=(--volume "$PWD/$config:/app/$config:ro")
+fi
+
+if [ -t 0 ]; then
+    target="$@"
+else
+    target="$(cat -)"
+fi
+
+docker run --rm "${args[@]}" --entrypoint "sh" gtramontina/commitlint:8.3.5 -c "echo '$target' | commitlint"
