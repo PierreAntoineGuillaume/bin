@@ -1,0 +1,9 @@
+FROM node:16-alpine
+
+RUN mkdir /app
+
+WORKDIR /app
+
+RUN npm install --save-dev @commitlint/config-conventional @commitlint/cli
+
+CMD [ "npx", "commitlint" ]

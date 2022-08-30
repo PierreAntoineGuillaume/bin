@@ -2,18 +2,26 @@
 
 set -euo pipefail
 
-config=.commitlintrc
+candidatesFiles=(
+    .commitlintrc
+    .commitlintrc.json
+    .commitlintrc.yaml
+    .commitlintrc.yml
+    .commitlintrc.js
+    .commitlintrc.cjs
+    .commitlintrc.ts
+    commitlint.config.js
+    commitlint.config.cjs
+    commitlint.config.ts
+)
 
-args=()
+volume=()
 
-if [ -f "$config" ]; then
-    args+=(--volume "$PWD/$config:/app/$config:ro")
-fi
+for file in "${candidatesFiles[@]}"; do
+    if [ -f "$file" ]; then
+        volume=(--volume "$PWD/$file:/app/$file:ro")
+        break
+    fi
+done
 
-if [ -t 0 ]; then
-    target="$@"
-else
-    target="$(cat -)"
-fi
-
-docker run --rm "${args[@]}" --entrypoint "sh" gtramontina/commitlint:8.3.5 -c "echo '$target' | commitlint"
+docker run --rm -i "${volume[@]}" pag/commitlint
