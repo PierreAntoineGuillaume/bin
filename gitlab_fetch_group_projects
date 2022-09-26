@@ -9,9 +9,14 @@ GITLAB_HOST=${GITLAB_HOST:-gitlab.com}
 GITLAB_GROUP=$1
 GITLAB_TOKEN=${GITLAB_TOKEN:-}
 
+WORKSPACE=${WORKSPACE:-}
+if [ -n "$WORKSPACE" ]; then
+    WORKSPACE=\"${WORKSPACE%/}/\"
+fi
+
 parseContent () {
-    jq -r '.[] | [ .path_with_namespace, .ssh_url_to_repo ] | @tsv'
-} 
+    jq -r ".[] | [ $WORKSPACE +  .path_with_namespace, .ssh_url_to_repo ] | @tsv"
+}
 
 page=1
 
