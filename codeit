@@ -1,0 +1,13 @@
+#!/bin/env bash
+
+set -euo pipefail
+
+files=()
+if ! [ -t 0 ]; then
+  mapfile -t files < <(awk '{printf "--goto\n%s\n",$1}')
+fi
+
+if (( ${#files[@]} + $# )); then
+    echo code -r "${files[@]}" "$@"
+    code -r "${files[@]}" "$@"
+fi
