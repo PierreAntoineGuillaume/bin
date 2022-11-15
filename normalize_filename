@@ -11,30 +11,42 @@ normalize() {
   printf "%s%s" "$PREFIX" "$(tr '[:upper:]' '[:lower:]' <<<${1// /_})"
 }
 
+
+i=0
+use_mv=mv
 while (($#)); do
   case "$1" in
     "--dry-run"|"-n")
       DRY_RUN=true
-      shift
       ;;
     "--prefix"|"-p")
       shift
       PREFIX=$1
-      shift
+      ;;
+    "--git")
+      mv="git mv"
       ;;
     *)
-      normalized=$(normalize "$1")
-      if [ "$1" == "$normalized" ]; then
-        echo "$SOFT: already normalized $1"
-      else
-        if $DRY_RUN; then
-          echo mv -v "$1" "$normalized"
-        else
-          mv -v "$1" "$normalized"
-        fi
-      fi
-      shift
+      args+=("$1")
       ;;
   esac
+  shift
 done
 
+set -- "${args[@]}"
+
+while (($#)); do
+  ((++i))
+  normalized=$(normalize "$1")
+  normalized=$(printf "${normalized}" "$i")
+  if [ "$1" == "$normalized" ]; then
+    echo "$SOFT: already normalized $1"
+  else
+    if $DRY_RUN; then
+      echo $mv -v "$1" "$normalized"
+    else
+      $mv -v "$1" "$normalized"
+    fi
+  fi
+  shift
+done
