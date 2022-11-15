@@ -4,24 +4,58 @@ set -euo pipefail
 
 SOFT=$(basename "$0")
 
+usage() {
+    echo
+    echo "usage"
+    echo
+    echo "  $SOFT help                displays this help"
+    echo "  $SOFT arch <folder>       creates src/<folder>/{Domain, Infrastructure, Application}"
+    echo   
+}
+
+commands=()
+
 while (( $# )); do
     case "$1" in
-        arch)
-        shift
-        folder=$1
-        shift
-        cd src
-        mkdir -p "$folder"
-        cd "$folder"
-        mkdir -p {Domain,Infrastructure,Application}
-        touch {Domain,Infrastructure,Application}/.gitignore
-        git add .
-        exit
+        "--help"|"-h")
+        usage
+        exit 0
         ;;
         *)
-        >&2 echo "$SOFT: unknown command $*"
-        exit 1
+        commands+=("$1")
+        ;;
+    esac
+    shift
+done
+
+set -- "${commands[@]}"
+
+while (( $# )); do
+    cmd=$1
+    shift
+    case "$cmd" in
+        help)
+            usage
+            ;;
+        arch)
+        folder=$1
         shift
+        if ! [ -d "src" ]; then
+            >&2 echo "$SOFT: src folder does not exist, ddd arch won't create it to prevent bugs"
+            exit 1
+        fi
+        mkdir --parents --verbose {src,tests}"/$folder/"{Domain,Infrastructure,Application}
+        touch {src,tests}"/$folder/"{Domain,Infrastructure,Application}/.gitignore
+        if ! [ -f "src/$folder/README.md" ]; then
+            printf "# A quelle équipe appartient le contexte ?\n\n# Quel service métier est décideur ?\n\n" >> "src/$folder/README.md"
+        fi
+        git add {src,tests}"/$folder/"
+        exit
+        ;;
+        
+        *)
+        >&2 echo "$SOFT: unknown command $*"
+            exit 1
             ;;
     esac
 done
