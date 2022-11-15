@@ -2,8 +2,4 @@
 
 set -euo pipefail
 
-program=$1;
-
-x="$(which $1)"
-
-editor $x
+editor "$(which $1)"
