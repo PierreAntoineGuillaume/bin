@@ -3,46 +3,47 @@
 set -euo pipefail
 
 
+gs() {
+  # take last arg and put it as destination, unix style
+  outputFile="${*: -1}"
+  set -- "${@: 1 : $(($#-1)) }"
+  /usr/bin/gs -dNOPAUSE -dQUIET -dBATCH -sDEVICE=pdfwrite -q -sOutputFile="$outputFile" "$@"
+}
+
 
 while (( $# )); do
-
-  case $1 in
+  command=$1;
+  shift
+  case "$command" in
     "compress")
-      shift
+      if [ "$#" -lt 2 ]; then
+        >&2 echo "compress requires a target";
+        exit 1
+      fi
       # see https://askubuntu.com/questions/113544/how-can-i-reduce-the-file-size-of-a-scanned-pdf-file
-      input=$1
-      if [ "$input" = '-' ]; then
-        input=/dev/stdin
-      fi
-      target=$2
-      if [ "$target" = '-' ]; then
-        target=/dev/stdout
-      fi
-      gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$target" "$input"
+      gs "-dCompatibilityLevel=1.4" "-dPDFSETTINGS=/ebook" "$@"
       exit 0
     ;;
     "merge")
-      shift
+      if [ "$#" -lt 3 ]; then
+        >&2 echo "merge requires a at least two sources and a target";
+        exit 1
+      fi
       # see https://gist.github.com/brenopolanski/2ae13095ed7e865b60f5
-      gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE=/dev/stdout -dBATCH "$@"
+      gs "$@"
       exit 0
     ;;
     "split"|"slice")
-      shift
-      input=$1
-      if [ "$input" = '-' ]; then
-        input=/dev/stdin
-      fi
-      target=$4
-      if [ "$target" = '-' ]; then
-        target=/dev/stdout
+      if [ "$#" -lt 4 ]; then
+        >&2 echo "slice requires a source, a first page, a last page and a target";
+        exit 1
       fi
       # https://stackoverflow.com/questions/10228592/splitting-a-pdf-with-ghostscript
-      gs -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$target" -dFirstPage="$2" -dLastPage="$3" -sDEVICE=pdfwrite "$input"
+      gs "-dFirstPage=$2" "-dLastPage=$3" "$1" "$4"
       exit 0
     ;;
     *)
-      >&2 echo "No such command $1";
+      >&2 echo "No such command $command";
       exit 1
       ;;
   esac
