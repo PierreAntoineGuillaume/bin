@@ -1,4 +1,35 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+
+args=()
+
+
+
+usage() {
+    echo
+    echo "$(basename $0): usage"
+    echo
+}
+
+while (( $# )); do
+    cmd=$1
+    shift
+    case "$cmd" in
+    --help|-h)
+        usage
+        exit 0
+    ;;
+    --)
+        args+=("$@")
+        shift $#
+    ;;
+    *)
+        args+=("$cmd")
+        ;;
+    esac
+done
+
+set -- "${args[@]}"
+
 rg -n "$@" | fzf --cycle --multi --extended
