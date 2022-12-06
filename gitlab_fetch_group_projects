@@ -2,20 +2,70 @@
 
 set -euo pipefail
 
-command -v curl > /dev/null
-command -v jq > /dev/null
+SOFT=$(basename "$0")
+
+err() {
+    >&2 echo "$SOFT: $*"
+}
+
+usage() {
+    echo "$SOFT: usage"
+    echo
+    echo "    $SOFT <group>"
+    echo
+    echo "        group: the gitlab group to clone"
+    echo
+    echo "    ENVIRONMENT"
+    echo
+    echo "        GITLAB_TOKEN with permission granted to [I don't remember right now, feel free to help]"
+    echo "            it can be generated at https://gitlab.com/-/profile/personal_access_tokens"
+    echo
+    echo "        GITLAB_HOST by default is gitlab.com"
+    echo
+    echo "    EXAMPLES"
+    echo
+    echo '        export GITLAB_TOKEN=glpat-AZEazeazeAZEaze'
+    echo '        export GITLAB_HOST=gitlab.com'
+    echo '        gitlab_fetch_group_projects pag-station | while read -r ssh path; do echo git clone "$ssh" "$WORKSPACE/$path"; done'
+    echo
+    echo '            will clone everything accessible under the group gitlab.com/pag-station '
+    echo
+}
+
+args=()
+while (( $# )); do
+    cmd=$1
+    shift
+    case "$cmd" in
+        -h|--help|help)
+            usage
+            exit 0
+        ;;
+        *)
+        args+=("$cmd")
+        ;;
+    esac
+done
+
+if ! command -v curl > /dev/null; then
+    err "curl is missing"
+    exit 1;
+fi
+
+if ! command -v jq > /dev/null; then
+    err "jq is missing"
+    exit 1;
+fi
+
+
+set -- "${args[@]}"
 
 GITLAB_HOST=${GITLAB_HOST:-gitlab.com}
 GITLAB_GROUP=$1
 GITLAB_TOKEN=${GITLAB_TOKEN:-}
 
-WORKSPACE=${WORKSPACE:-}
-if [ -n "$WORKSPACE" ]; then
-    WORKSPACE=\"${WORKSPACE%/}/\"
-fi
-
 parseContent () {
-    jq -r ".[] | [ $WORKSPACE +  .path_with_namespace, .ssh_url_to_repo ] | @tsv"
+    jq -r ".[] | [ .ssh_url_to_repo, .path_with_namespace ] | @tsv"
 }
 
 page=1
