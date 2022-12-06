@@ -60,7 +60,7 @@ for file in "${all[@]}"; do
 done
 if [ "${#dirsToCreate[@]}" -gt 0 ]; then
   {
-    printf "Creating folders ["
+    printf "Creating folders [ "
     printf "%s " "${dirsToCreate[@]}"
     printf "]\n"
   } >&2
