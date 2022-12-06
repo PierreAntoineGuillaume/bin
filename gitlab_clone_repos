@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-while read -r path ssh
-do
-    git clone "${ssh}" "${path}"
-done
