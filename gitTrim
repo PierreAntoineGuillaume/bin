@@ -4,19 +4,21 @@ set -euo pipefail
 IFS=$'\n\t'
 
 usage(){
-    detail "usage : $(basename "$0") [ -d or -D ]"
+    echo "usage : $(basename "$0") [ -d or -D ] [ install-alias ]"
     doc=(
         "lists branches that were deleted from remote"
         "" "List of flags :"
         "-h | --help displays help"
         "-d deletes branches that were deleted from remote (with no unmerged commits)"
         "-D deletes branches that were deleted from remote (even with unmerged commits, when squashing for instance)"
+        ""
+        "install-alias  installs gitTrim as a git global alias"
     )
-    detail --printf -- "  %s\n" "${doc[@]}"
+    printf  "%s\n" "${doc[@]}"
 }
 
 flag=''
-while test "$#" -gt 0
+while (( $# ))
 do
     case "$1" in
         "-h"|"--help")
@@ -29,20 +31,30 @@ do
         -D)
             flag=D
             ;;
+        install-alias)
+            echo "# Installing globally alias trim as !gitTrim"
+            echo "# Make sure gitTrim is accessible as an executable"
+            echo "# For instance, you can put it in /usr/local/bin"
+            echo
+            echo "# Executing command :"
+            echo "git config --global alias.trim '!gitTrim'"
+            git config --global alias.trim '!gitTrim'
+            exit 0
+            ;;
     esac
     shift
 done
 
-detail -4 "Updating Content ..."
+echo "Running git fetch -p"
 
-git fetch -p > /dev/null
+git fetch -p
 
 deletedBranches=''
 while read -r branch
 do
     if [ "$branch" = "*" ];
     then
-        detail -3 "Warning: Your current local branch is deleted on remote." >&2
+        echo "Warning: Your current local branch is deleted on remote." >&2
         continue
     fi
     deletedBranches="$deletedBranches, $branch"
@@ -54,10 +66,10 @@ done < <(git for-each-ref --format '%(upstream:track) %(refname)' refs/heads | a
 if [ -n "$deletedBranches" ]; then
     deletedBranches=${deletedBranches/, }
     if [ -z "$flag" ]; then
-        detail -4 "Branches to be trimmed : $deletedBranches"
+        echo "Branches to be trimmed : $deletedBranches"
     else
-        detail -4 "Trimed branches : $deletedBranches"
+        echo "Trimed branches : $deletedBranches"
     fi
 else
-    detail -4 "No branches to trim"
+    echo "No branches to trim"
 fi
