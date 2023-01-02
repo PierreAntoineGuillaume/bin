@@ -4,10 +4,17 @@ set -euo pipefail
 
 usage() {
   echo
-  echo "Usage $(basename $0)"
+  echo "Usage: $(basename $0) [ +-g ] [ path ] [ -x path ] ..."
+  echo
+  echo "  creates all path specified in arguments."
+  echo "  the last part of the path will be created as a regular file."
+  echo "  said file will be added to git."
   echo
   echo "  -h --help   display this help"
-  echo "  -x          flag next flag as executable"
+  echo "  -x <path>   flag next path as executable"
+  echo
+  echo "  +g          do add every file to git [default]"
+  echo "  -g          don't add any file to git"
   echo
 }
 
@@ -16,31 +23,42 @@ usage() {
 flat=()
 executables=()
 all=()
+ADD_TO_GIT=true
 
 while (( $# )); do
-  case "$1" in
+  cmd=$1
+  shift
+  case "$cmd" in
     --help|-h)
       usage
       exit
       ;;
     -x)
-      shift
       executables+=("$1")
       all+=("$1")
       shift
       ;;
+    -g)
+      ADD_TO_GIT=false
+      ;;
+    +g)
+      ADD_TO_GIT=true
+      ;;
     --)
-      shift
       all+=("$@")
       shift $#
       ;;
     -*)
-      >&2 echo "Unknown flag $1"
-      exit 1
+      if [ "${#cmd}" -gt 2 ]; then
+        set -- "${cmd:0:2}" "-${cmd:2}" "$@"
+        continue
+      else
+        >&2 echo "Unknown flag $cmd "
+        exit 1
+      fi
       ;;
     *)
-      all+=("$1")
-      shift
+      all+=("$cmd")
       ;;
   esac
 done
@@ -78,7 +96,8 @@ done
 
 set +e
 
-for file in "${all[@]}"; do
-  2>/dev/null git -C "$(dirname "$file")" add "$(basename "$file")"
-done
-
+if $ADD_TO_GIT; then
+  for file in "${all[@]}"; do
+    2>/dev/null git -C "$(dirname "$file")" add "$(basename "$file")"
+  done
+fi
