@@ -6,15 +6,51 @@ SOFT="$(basename $0)"
 
 DIRECTORY="."
 
-FILES_TYPE="*.php"
+usage () {
+    echo "Usage: $SOFT [ -t <ext> ] <target> <replacement>"
+    echo
+    echo "    -t --type <ext>   only look for file with .ext extension"
+}
+
+all=()
+args=()
+while (( $# )); do
+  cmd=$1
+  shift
+  case "$cmd" in
+    --type|-t)
+        args+=(-iname "*.$1")
+      ;;
+    --help|-h)
+      usage
+      exit
+      ;;
+    --)
+      all+=("$@")
+      shift $#
+      ;;
+    -*)
+      if [ "${#cmd}" -gt 2 ]; then
+        set -- "${cmd:0:2}" "-${cmd:2}" "$@"
+        continue
+      else
+        >&2 echo "Unknown flag $cmd "
+        exit 1
+      fi
+      ;;
+    *)
+      all+=("$cmd")
+      ;;
+  esac
+done
 
 
-#trap cleanup EXIT
+set -- "${all[@]}"
 
 if [ "$#" -lt 2  ];then
-    echo "Usage : $SOFT \"recherche\" \"remplacement\""
+    usage
     exit 1
 fi
 
-find "$DIRECTORY" -name "$FILES_TYPE" -not \( -path ./.git -prune -o -path ./.idea -prune  \) -exec refactor_infile "$1" "$2" {} ';'
+find "$DIRECTORY" "${args[@]}" -not \( -path ./.git -prune -o -path ./.idea -prune  \) -exec refactor_infile "$1" "$2" {} ';'
 
