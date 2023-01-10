@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+research_array=()
+research_matches=()
+
+save() {
+    {
+        echo "#!/bin/env bash"
+        echo "research_array=("
+        for i in "${research_array[@]}"; do
+            echo "  '$i'"
+        done
+        echo ")"
+
+        echo "research_matches=("
+        for i in "${research_matches[@]}"; do
+            echo "  '$i'"
+        done
+        echo ")"
+    } > "$1"
+}
+
+load() {
+    echo "Loading from: $1"
+    echo
+    source "$1"
+}
+
+pop() {
+    local len=${#research_array[@]}
+    if (( $len )); then
+        research_array=("${research_array[@]:0:$((len -1))}")
+        research_matches=("${research_matches[@]:0:$((len -1))}")
+    fi
+}
+
+push() {
+    research_matches+=("$1")
+    research_array+=("$2");
+}
+
+controls () {
+    echo "trace:"
+    local len=${#research_array[@]}
+    for i in $(seq 0 $(($len -1))); do
+        printf " - %s     (%s)\n" "${research_array[$i]}" "${research_matches[$i]}"
+    done
+    echo
+    echo "pop           : pop last research"
+    echo "find          : look for some code"
+    echo "save <file>   : save this process in file"
+    echo "load <file>   : load some saved process from file"
+    printf "\nInput: "
+}
+
+clear
+
+while (( $# )); do
+    cmd=$1
+    shift
+    case "$cmd" in
+        load)
+            load $1
+        ;;
+        *)
+        ;;
+    esac
+done
+
+controls
+
+while read -r line; do
+    case "$line" in
+        "pop")
+            pop
+            code -r --goto "${research_array[-1]}"
+        ;;
+        "save "*)
+            set -- $line
+            shift
+            save "$1"
+        ;;
+        "load "*)
+            set -- $line
+            shift
+            load "$1"
+        ;;
+        "find "*)
+            set -- $line
+            shift
+            mapfile -t leads < <(rg -ni "$@" | fzf --multi --extended | awk '{ print $1 }')
+            if [ "$?" -eq 0 ]; then
+                for lead in "${leads[@]}"; do
+                    lead=${lead:0: -1}
+                    push "$*" "$lead"
+                done
+                code -r --goto "$lead"
+            fi
+        ;;
+    esac
+    clear
+    controls
+done
+echo
