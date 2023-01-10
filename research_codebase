@@ -87,7 +87,7 @@ while read -r line; do
             load "$1"
         ;;
         "find "*)
-            mapfile -t leads < <(rg -ni "$@" | fzf --multi --extended | awk '{ print $1 }')
+            mapfile -t leads < <(rg -ni "$*" | fzf --multi --extended | awk '{ print $1 }')
             if [ "$?" -eq 0 ]; then
                 for lead in "${leads[@]}"; do
                     lead=${lead:0: -1}
