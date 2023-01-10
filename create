@@ -12,6 +12,7 @@ usage() {
   echo
   echo "  -h --help   display this help"
   echo "  -x <path>   flag next path as executable"
+  echo "  -X          flag all path as executable"
   echo
   echo "  +g          do add every file to git [default]"
   echo "  -g          don't add any file to git"
@@ -24,6 +25,7 @@ flat=()
 executables=()
 all=()
 ADD_TO_GIT=true
+DEFAULT_TO_EXECUTABLE=false
 
 while (( $# )); do
   cmd=$1
@@ -37,6 +39,9 @@ while (( $# )); do
       executables+=("$1")
       all+=("$1")
       shift
+      ;;
+    -X)
+      DEFAULT_TO_EXECUTABLE=true
       ;;
     -g)
       ADD_TO_GIT=false
@@ -83,6 +88,10 @@ if [ "${#dirsToCreate[@]}" -gt 0 ]; then
     printf "]\n"
   } >&2
   mkdir -p "${dirsToCreate[@]}"
+fi
+
+if $DEFAULT_TO_EXECUTABLE; then
+  executables=("${all[@]}")
 fi
 
 for file in "${executables[@]}"; do
