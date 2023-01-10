@@ -72,24 +72,21 @@ done
 controls
 
 while read -r line; do
+    set -- $line
+    cmd=$1
+    shift
     case "$line" in
         "pop")
             pop
             code -r --goto "${research_array[-1]}"
         ;;
         "save "*)
-            set -- $line
-            shift
             save "$1"
         ;;
         "load "*)
-            set -- $line
-            shift
             load "$1"
         ;;
         "find "*)
-            set -- $line
-            shift
             mapfile -t leads < <(rg -ni "$@" | fzf --multi --extended | awk '{ print $1 }')
             if [ "$?" -eq 0 ]; then
                 for lead in "${leads[@]}"; do
