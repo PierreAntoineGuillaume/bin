@@ -71,10 +71,10 @@ set -- "${args[@]}"
 
 resolveHubLab () {
     case "$1" in
-        gitlab*)
+        *gitlab*)
             echo "$1/-"
         ;;
-        github*)
+        *github*)
             echo "$1"
         ;;
     esac
