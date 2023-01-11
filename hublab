@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SOFT=$(basename "$0")
+
+usage() {
+    echo "$SOFT: usage"
+    echo
+    echo "  $SOFT <path/to/fileA> "
+    echo
+    echo "  opens fileA and folderB in the «origin»'s remote url, with current branch"
+    echo
+    echo '  -r | --remote <remote>            use <remote> instead of origin'
+    echo '  -b | --branch <branch>            forces '"$SOFT"' to open the file on <branch> instead'
+    echo
+}
+
+err() {
+    >&2 echo -e "$SOFT: \e[31m$*\e[0m"
+}
+
+args=()
+remote=origin
+force_branch=
+while (( $# )); do
+    cmd=$1
+    shift
+    case "$cmd" in
+        -*=*)
+            set -- "${cmd/=*}" "${cmd#*=}" "$@"
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --remote|-r)
+            remote=$1
+            shift
+            ;;
+        --branch|-b)
+            force_branch=$1
+            shift
+            ;;
+        --)
+            args+=("$@")
+            shift $#
+            ;;
+        -*)
+            if [ "${#cmd}" -gt 2 ]; then
+                set -- "${cmd:0:2}" "-${cmd:2}" "$@"
+                continue
+            else
+                err "unknown flag $cmd"
+                exit 1
+            fi
+            ;;
+        *)
+            args+=("$cmd")
+            ;;
+
+    esac
+done
+
+set -- "${args[@]}"
+
+resolveHubLab () {
+    case "$1" in
+        gitlab*)
+            echo "$1/-"
+        ;;
+        github*)
+            echo "$1"
+        ;;
+    esac
+}
+
+computeUrl() (
+    target=$(realpath "$1")
+    file=$target
+    type=tree
+    if [ -f "$file" ]; then
+        type=blob
+        target=$(dirname "$file")
+    fi
+    project=$(git -C "$target" rev-parse --show-toplevel)
+    address=$(git -C "$project" remote get-url $remote)
+    address=${address/.git}
+    address=${address#*@}
+    hublab_domain=${address/:*}
+    project_path=${address#*:}
+    base="$hublab_domain/$project_path"
+    if [ "$project" == "$file" ]; then
+        echo "https://$base"
+        return
+    fi
+
+    semipath=${file:$((${#project} + 1))}
+    if [ -n "$force_branch" ]; then
+        branch=$force_branch
+    else
+        set +e
+        branch=$(git -C "$project" branch --show-current)
+        if [ -z "$branch" ]; then
+            err "no branches available when trying to open $1"
+            exit 1
+        fi
+        set -e
+    fi
+    echo "https://$(resolveHubLab "$base")/$type/$branch/$semipath"
+)
+
+if [ "${#args[@]}" -gt 0 ]; then
+    for page in "${args[@]}"; do
+        xdg-open "$(computeUrl "$page")"
+    done
+else
+    remote=$(git remote get-url origin)
+    remote=${remote/.git}
+    remote=${remote#*@}
+    hublab_domain=${remote/:*}
+    project_path=${remote#*:}
+    xdg-open "https://$hublab_domain/$project_path"
+fi
