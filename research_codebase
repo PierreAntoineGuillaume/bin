@@ -129,21 +129,24 @@ while read -er line; do
     set -- $line
     cmd=$1
     shift
-    case "$line" in
+    case "$cmd" in
         "pop")
             pop
         ;;
-        "save "*)
+        "save")
             save "$1"
         ;;
-        "load "*)
+        "load")
             load "$1"
         ;;
-        "find "*)
+        "find")
             do_find "$@"
         ;;
         "quit")
            break;
+        ;;
+        *)
+            messages+=("\e[31merror: Unknown action «$cmd»\e[0m")
         ;;
     esac
     clear
