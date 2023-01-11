@@ -74,7 +74,7 @@ resolveHubLab () {
         *gitlab*)
             echo "$1/-"
         ;;
-        *github*)
+        *)
             echo "$1"
         ;;
     esac
