@@ -13,6 +13,7 @@ usage() {
     echo
     echo '  -r | --remote <remote>            use <remote> instead of origin'
     echo '  -b | --branch <branch>            forces '"$SOFT"' to open the file on <branch> instead'
+    echo '       --raw                        opens the file as raw'
     echo
 }
 
@@ -23,6 +24,7 @@ err() {
 args=()
 remote=origin
 force_branch=
+raw=false
 while (( $# )); do
     cmd=$1
     shift
@@ -41,6 +43,9 @@ while (( $# )); do
         --branch|-b)
             force_branch=$1
             shift
+            ;;
+        --raw)
+            raw=true
             ;;
         --)
             args+=("$@")
@@ -80,7 +85,11 @@ computeUrl() (
     file=$target
     type=tree
     if [ -f "$file" ]; then
-        type=blob
+        if $raw; then
+            type=raw
+        else
+            type=blob
+        fi
         target=$(dirname "$file")
     fi
     project=$(git -C "$target" rev-parse --show-toplevel)
