@@ -60,6 +60,14 @@ pop() {
     recompute_padding
 }
 
+direct_push() {
+    push "" "$1"
+}
+
+goto() {
+    code -r --goto "$1"
+}
+
 push() {
     research_matches+=("$1")
     research_array+=("$2");
@@ -74,7 +82,7 @@ do_find () {
         done
         if [ -n "${lead+set}" ]; then
             recompute_padding
-            code -r --goto "$lead"
+            goto "$lead"
         fi
     fi
 }
@@ -98,12 +106,13 @@ controls () {
     done
     echo
     echo "pop               : pop last research"
+    echo "push <file:line>  : push a file"          
     echo "find              : look for some code"
     echo "save <file>       : save this process in file"
     echo "load <file>       : load some saved process from file"
+    echo "code              : opens last in code" 
     echo "quit | c^D        : quit"
     echo
-    echo "Reading instructions from stdin:"
 }
 
 clear
@@ -122,7 +131,7 @@ done
 
 controls
 
-while read -er line; do
+while read -p '> ' -er line; do
     if [ -z "$line" ]; then
         continue
     fi
@@ -133,11 +142,18 @@ while read -er line; do
         "pop")
             pop
         ;;
+        "push")
+            direct_push "$1"
+        ;;
         "save")
             save "$1"
         ;;
         "load")
             load "$1"
+        ;;
+        "code")
+            len=$(( ${#research_array[@]} - 1 ))
+            goto "${research_array[$len]}"
         ;;
         "find")
             do_find "$@"
