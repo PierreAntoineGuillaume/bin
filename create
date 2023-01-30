@@ -82,6 +82,7 @@ for file in "${all[@]}"; do
   fi
 done
 if [ "${#dirsToCreate[@]}" -gt 0 ]; then
+  mapfile -t dirsToCreate < <(printf "%s\n" "${dirsToCreate[@]}" | sort | uniq)
   {
     printf "Creating folders [ "
     printf "%s " "${dirsToCreate[@]}"
