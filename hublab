@@ -15,6 +15,7 @@ usage() {
     echo '  -b | --branch <branch>            forces '"$SOFT"' to open the file on <branch> instead'
     echo '       --raw                        opens the file as raw'
     echo
+    echo '  -e | --exec <command>             executes command with output instead of echo. use {} to refer to the symbol'
 }
 
 err() {
@@ -25,6 +26,7 @@ args=()
 remote=origin
 force_branch=
 raw=false
+execute="echo {}"
 while (( $# )); do
     cmd=$1
     shift
@@ -47,6 +49,10 @@ while (( $# )); do
         --raw)
             raw=true
             ;;
+        --execute | -e)
+            execute=$1
+            shift
+        ;;
         --)
             args+=("$@")
             shift $#
@@ -121,7 +127,7 @@ computeUrl() (
 
 if [ "${#args[@]}" -gt 0 ]; then
     for page in "${args[@]}"; do
-        xdg-open "$(computeUrl "$page")"
+        ${execute//\{\}/$(computeUrl "$page")}
     done
 else
     remote=$(git remote get-url origin)
@@ -129,5 +135,5 @@ else
     remote=${remote#*@}
     hublab_domain=${remote/:*}
     project_path=${remote#*:}
-    xdg-open "https://$hublab_domain/$project_path"
+    ${execute/{}/"https://$hublab_domain/$project_path"}
 fi
