@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# This script is named with an uppercase A to avoid polluting a* completions
+# It is not meant to be used regularly
+
+autocompleteFolder=~/.local/share/bash-completion/completions
+
+if ! [ -d $autocompleteFolder ]; then
+    echo "creating folder $autocompleteFolder"
+    mkdir -p $autocompleteFolder
+fi
+
+if [ -f "$autocompleteFolder/$1" ]; then
+    echo "overwriting file $autocompleteFolder/$1"
+else
+    echo "creating file $autocompleteFolder/$1"
+fi
+
+cat - > "$autocompleteFolder/$1"
