@@ -69,7 +69,7 @@ while (( $# )); do
 done
 
 
-content=$'\n'
+content=''
 if test ! -t 0; then
   content=$(cat -)
 fi
@@ -100,9 +100,25 @@ for file in "${executables[@]}"; do
   chmod a+x "$file"
 done
 
-for file in "${all[@]}"; do
-  echo "$content" >> "$file"
-done
+if [ -n "$content" ]; then
+  for file in "${all[@]}"; do
+    echo "$content" >> "$file"
+  done
+else
+  for file in "${all[@]}"; do
+    case "$file" in
+      *.php)
+        path=${file%%.php}
+        namespace=${path%/*}
+        namespace=${namespace//\//\\}
+        classname=${path##*/}
+        printf -- '<?php\n\ndeclare(strict_types=1);\n\nnamespace %s;\n\nclass %s\n{\n}\n' "$namespace" "$classname" >> "$file"
+      ;;
+      *)
+        echo $'\n' >> "$file"
+    esac
+  done
+fi
 
 set +e
 
