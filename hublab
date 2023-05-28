@@ -122,6 +122,7 @@ computeUrl() (
         fi
         set -e
     fi
+    semipath=${semipath// /%20}
     echo "https://$(resolveHubLab "$base")/$type/$branch/$semipath"
 )
 
