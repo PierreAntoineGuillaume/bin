@@ -9,6 +9,7 @@ args=()
 usage() {
     echo
     echo "$(basename $0): usage"
+    echo "$(basename $0) <research>"
     echo
 }
 
@@ -29,6 +30,12 @@ while (( $# )); do
         ;;
     esac
 done
+
+if ! [ -n "${args[*]}" ]; then
+    >&2 echo "$(basename $0) error: missing argument";
+    usage
+    exit 1;
+fi
 
 set -- "${args[@]}"
 
