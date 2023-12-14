@@ -26,7 +26,13 @@ args=()
 remote=origin
 force_branch=
 raw=false
-execute="echo {}"
+
+if [ -n "${HUBLAB_EXECUTE-}" ]; then
+  execute="${HUBLAB_EXECUTE}"
+else
+  execute="echo {}"
+fi
+
 while (( $# )); do
     cmd=$1
     shift
