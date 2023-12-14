@@ -76,19 +76,19 @@ fi
 
 dirsToCreate=()
 for file in "${all[@]}"; do
-  dir=$(dirname "$file")
+  dir=$(dirname -- "$file")
   if ! [ -d "$dir" ]; then
     dirsToCreate+=("$dir")
   fi
 done
 if [ "${#dirsToCreate[@]}" -gt 0 ]; then
-  mapfile -t dirsToCreate < <(printf "%s\n" "${dirsToCreate[@]}" | sort | uniq)
+  mapfile -t dirsToCreate < <(printf -- "%s\n" "${dirsToCreate[@]}" | sort | uniq)
   {
     printf "Creating folders [ "
-    printf "%s " "${dirsToCreate[@]}"
+    printf -- "%s " "${dirsToCreate[@]}"
     printf "]\n"
   } >&2
-  mkdir -p "${dirsToCreate[@]}"
+  mkdir -p -- "${dirsToCreate[@]}"
 fi
 
 if $DEFAULT_TO_EXECUTABLE; then
@@ -96,13 +96,13 @@ if $DEFAULT_TO_EXECUTABLE; then
 fi
 
 for file in "${executables[@]}"; do
-  printf "%s\n" "#!/usr/bin/env bash" "" "set -euo pipefail" >> "$file"
-  chmod a+x "$file"
+  printf -- "%s\n" "#!/usr/bin/env bash" "" "set -euo pipefail" >> "$file"
+  chmod a+x -- "$file"
 done
 
 if [ -n "$content" ]; then
   for file in "${all[@]}"; do
-    echo "$content" >> "$file"
+    echo -- "$content" >> "$file"
   done
 else
   for file in "${all[@]}"; do
@@ -124,6 +124,6 @@ set +e
 
 if $ADD_TO_GIT; then
   for file in "${all[@]}"; do
-    2>/dev/null git -C "$(dirname "$file")" add "$(basename "$file")"
+    2>/dev/null git -C "$(dirname -- "$file")" add -- "$(basename -- "$file")"
   done
 fi
