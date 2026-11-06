@@ -2,13 +2,12 @@
 
 set -euo pipefail
 
-
 months=6
-path=
+prefix=
 
 usage() {
     echo "usage: $0 [--months N] branch-prefix" >&2
-    echo "Default months = $months"
+    echo "Default months = $months" >&2
     exit 1
 }
 
@@ -16,12 +15,12 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -m|--months) months="$2"; shift 2 ;;
         -h|--help) usage ;;
-        *) path="$1"; shift ;;
+        *) prefix="$1"; shift ;;
     esac
 done
 
-if [ -z "$path" ]; then
-  >&2 echo "no path provided"
+if [ -z "$prefix" ]; then
+  >&2 echo "no branch prefix provided"
   usage
 fi
 
@@ -29,11 +28,5 @@ git fetch --quiet --prune origin
 
 cutoff=$(date -d "-${months} months" +%s)
 
-mapfile -t stale < <(
-    git for-each-ref \
-        --format='%(committerdate:unix) %(committerdate:short) %(refname:lstrip=3)' \
-        "refs/remotes/origin/$path" \
-    | awk -v cutoff="$cutoff" '$1 < cutoff { print $3 }' \
-)
-
-printf '%s\n' "${stale[@]}"
+git for-each-ref --format='%(committerdate:unix) %(refname:lstrip=3)' "refs/remotes/origin/$prefix" \
+    | awk -v cutoff="$cutoff" '$1 < cutoff { print $2 }'
