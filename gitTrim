@@ -45,10 +45,6 @@ do
     shift
 done
 
-echo "Running git fetch -p"
-
-git fetch -p
-
 deletedBranches=''
 while read -r branch
 do

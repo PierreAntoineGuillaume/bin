@@ -33,8 +33,7 @@ mapfile -t stale < <(
     git for-each-ref \
         --format='%(committerdate:unix) %(committerdate:short) %(refname:lstrip=3)' \
         "refs/remotes/origin/$path" \
-    | awk -v cutoff="$cutoff" '$1 < cutoff { print $2 " " $3 }' \
-    | sort
+    | awk -v cutoff="$cutoff" '$1 < cutoff { print $3 }' \
 )
 
 printf '%s\n' "${stale[@]}"
