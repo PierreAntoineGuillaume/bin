@@ -61,7 +61,7 @@ do
     if [ -n "$flag" ]; then
         git branch -$flag "$branch" > /dev/null
     fi
-done < <(git for-each-ref --format '%(upstream:track) %(refname)' refs/heads | awk ' $1 == "[gone]" { sub("refs/heads/", "", $2) ; print $2 }')
+done < <(git for-each-ref --format '%(upstream:track) %(refname:short)' refs/heads | awk ' $1 == "[gone]" { print $2 }')
 
 if [ -n "$deletedBranches" ]; then
     deletedBranches=${deletedBranches/, }

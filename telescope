@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SOFT=$(basename "$0")
+TELESCOPE_FAVORITES="${TELESCOPE_FAVORITES:-$HOME/.config/telescope/favorites}"
+
+usage() {
+    echo "Usage: $SOFT [path] [-g|--grep <query>] [-b|--favorites] [-h|--help]"
+    echo
+    echo "  telescope.nvim-like interactive picker (fzf + bat)."
+    echo
+    echo "  path                 root to explore (default: git root, else cwd)"
+    echo "  -g | --grep <query>  start in content-search mode (ripgrep) with <query>"
+    echo "  -b | --favorites     start in favorites mode"
+    echo "  -h | --help          display this help"
+    echo
+    echo "  Inside the picker:"
+    echo "    ctrl-r   content search (ripgrep, live)"
+    echo "    ctrl-f   file-name search"
+    echo "    ctrl-b   favorites"
+    echo "    ctrl-s   star/unstar the current entry"
+    echo "    tab      multi-select, enter opens the selection(s) in \$EDITOR"
+    echo
+    echo "  Favorites are stored in \$TELESCOPE_FAVORITES (default: $HOME/.config/telescope/favorites)"
+}
+
+# internal: called back by the ctrl-s binding, not meant to be used directly
+if [ "${1-}" = "--toggle-favorite" ]; then
+    shift
+    target=$(readlink -f -- "$1" 2>/dev/null || printf '%s' "$1")
+    mkdir -p -- "$(dirname -- "$TELESCOPE_FAVORITES")"
+    touch -- "$TELESCOPE_FAVORITES"
+    if grep -qxF -- "$target" "$TELESCOPE_FAVORITES"; then
+        grep -vxF -- "$target" "$TELESCOPE_FAVORITES" > "$TELESCOPE_FAVORITES.tmp" || true
+        mv -- "$TELESCOPE_FAVORITES.tmp" "$TELESCOPE_FAVORITES"
+    else
+        echo "$target" >> "$TELESCOPE_FAVORITES"
+    fi
+    exit 0
+fi
+
+mode=files
+query=
+root=
+
+while (( $# )); do
+    cmd=$1
+    shift
+    case "$cmd" in
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --favorites|-b)
+            mode=favorites
+            ;;
+        --grep|-g)
+            mode=grep
+            query=${1-}
+            shift || true
+            ;;
+        *)
+            root=$cmd
+            ;;
+    esac
+done
+
+if [ -z "$root" ]; then
+    root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+fi
+
+cd -- "$root"
+
+export TELESCOPE_FAVORITES
+export TELESCOPE_SELF="$0"
+
+case "$mode" in
+    files)
+        FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+        prompt='files> '
+        ;;
+    grep)
+        FZF_DEFAULT_COMMAND="rg --column --line-number --no-heading --color=always --smart-case -- $(printf '%q' "$query")"
+        prompt='grep> '
+        ;;
+    favorites)
+        FZF_DEFAULT_COMMAND='cat -- "$TELESCOPE_FAVORITES" 2>/dev/null || true'
+        prompt='favorites> '
+        ;;
+esac
+export FZF_DEFAULT_COMMAND
+
+mapfile -t selections < <(
+    fzf --ansi --multi --cycle --with-shell 'bash -c' \
+        --height 100% \
+        --delimiter : \
+        --prompt "$prompt" \
+        --query "$query" \
+        --header 'ctrl-r content / ctrl-f files / ctrl-b favorites / ctrl-s star' \
+        --bind 'ctrl-r:change-prompt(grep> )+reload(rg --column --line-number --no-heading --color=always --smart-case -- {q} 2>/dev/null || true)' \
+        --bind 'ctrl-f:change-prompt(files> )+reload(fd --type f --hidden --follow --exclude .git)' \
+        --bind 'ctrl-b:change-prompt(favorites> )+reload(cat -- "$TELESCOPE_FAVORITES" 2>/dev/null || true)' \
+        --bind 'change:transform:[[ $FZF_PROMPT == grep* ]] && echo "reload(rg --column --line-number --no-heading --color=always --smart-case -- {q} 2>/dev/null || true)"' \
+        --bind 'ctrl-s:execute-silent($TELESCOPE_SELF --toggle-favorite {1})' \
+        --preview 'if [[ {2} =~ ^[0-9]+$ ]]; then bat --color=always --paging=never --highlight-line {2} -- {1}; else bat --color=always --paging=never -- {1}; fi'
+)
+
+(( ${#selections[@]} )) || exit 0
+
+editor_bin="${EDITOR:-editor}"
+
+if [ "${#selections[@]}" -eq 1 ]; then
+    line="${selections[0]}"
+    file="${line%%:*}"
+    rest="${line#*:}"
+    if [[ "$rest" =~ ^([0-9]+): ]]; then
+        "$editor_bin" "+${BASH_REMATCH[1]}" -- "$file"
+    else
+        "$editor_bin" -- "$file"
+    fi
+else
+    files=()
+    for line in "${selections[@]}"; do
+        files+=("${line%%:*}")
+    done
+    "$editor_bin" -- "${files[@]}"
+fi
